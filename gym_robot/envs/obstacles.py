@@ -28,3 +28,38 @@ class Robot(Obstacle):
         self.angle += self.turn_speed
     def turn_right(self):
         self.angle -= self.turn_speed
+    def collision(self,obj):
+        left_down=[]
+        left_up = []
+        right_up = []
+        right_down=[]
+        if type(obj) is Obstacle:
+            left_down[0] = self.position[0] - self.width/2
+            left_down[1] = self.position[1] - self.height/2
+
+            left_up[0] = self.position[0] - self.width/2
+            left_up[1] = self.position[1] + self.height/2
+
+            right_up[0] = self.position[0] + self.width/2
+            right_up[1] = self.position[1] + self.height/2
+
+            right_down[0] = self.position[0] + self.width/2
+            right_down[1] = self.position[1] - self.height/2
+
+            left_down = get_rotated_corner(left_down,self.angle,self.position)
+            right_down = get_rotated_corner(right_down,self.angle,self.position)
+            right_up = get_rotated_corner(right_up,self.angle,self.position)
+            left_up = get_rotated_corner(left_up,self.angle,self.position)
+
+
+            v1 = np.subtract(left_up,left_down)
+            v2 = np.subtract(right_up, right_down)
+            v3 = np.subtract(left_up,right_up)
+            v4 = np.subtract(left_down, right_down)
+
+        def get_rotated_corner(corner,angle,mid):
+            angleInRad = angle * np.pi/180
+            translatedCorner = np.subtract(mid,corner)
+            rotatedX = translatedCorner[0]*np.cos(angleInRad) - translatedCorner[1]*np.sin(angleInRad)
+            rotatedY = translatedCorner[0]*np.sin(angleInRad) + translatedCorner[1]*np.cos(angleInRad)
+            return [rotatedX + mid[0],rotatedY + mid[1]]

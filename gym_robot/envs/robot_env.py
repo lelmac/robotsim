@@ -67,17 +67,14 @@ class RobotEnv(gym.Env):
                 self.viewer.close()
                 self.viewer = None
             return
-        width = 600
-        height = 600
-        robot_width = 30
-        robot_height = 50
+
         
         
 
         if self.viewer is None:
-            self.viewer = rendering.Viewer(width, height, display=self.display)
+            self.viewer = rendering.Viewer(self.width, self.height, display=self.display)
             
-            l,r,t,b = -robot_width/2,robot_width/2,robot_height/2,-robot_height/2
+            l,r,t,b = -self.robot_width/2,self.robot_width/2,self.robot_height/2,-self.robot_height/2
             robot = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
             self.robottrans = rendering.Transform()
             robot.add_attr(self.robottrans)
