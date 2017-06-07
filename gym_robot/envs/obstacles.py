@@ -15,6 +15,22 @@ class Obstacle(object):
         return [(l,b), (l,t), (r,t), (r,b)]
     def get_postion(self):
         return self.position
+    def get_corners(self):
+        c1,c2,c3,c4 = [0,0],[0,0],[0,0],[0,0]
+        centerPoint = self.get_postion()
+        c1[0] = centerPoint[0] - self.width/2
+        c1[1] = centerPoint[1] - self.height/2
+            
+        c2[0] = centerPoint[0] - self.width/2
+        c2[1] = centerPoint[1] + self.height/2
+
+        c3[0] = centerPoint[0] + self.width/2
+        c3[1] = centerPoint[1] + self.height/2
+
+        c4[0] = centerPoint[0] + self.width/2
+        c4[1] = centerPoint[1] - self.height/2
+
+        return[c1,c2,c3,c4]
         
 class Robot(Obstacle):
     def __init__(self,position, width, height):
@@ -34,15 +50,32 @@ class Robot(Obstacle):
     def turn_right(self):
         self.angle -= self.turn_speed
     def collision(self,obj):
-
+    #    if type(obj) is Obstacle:
+    #        lines = self.get_collision_lines(self,self.get_corners())
+    #        lines2 = self.get_collision_lines(obj,obj.get_corners())    
+    #        for i in xrange(len(lines)):
+    #            for j in xrange(len(lines2)):
+    #                if self.line_intersect(lines[i],lines2[j]):
+    #                    print("collision")
+    #                    return True
         if type(obj) is Obstacle:
-            lines = self.get_collision_lines(self)
-            lines2 = self.get_collision_lines(obj)    
-            for i in xrange(len(lines)):
-                for j in xrange(len(lines2)):
-                    if self.line_intersect(lines[i],lines2[j]):
-                        print("collision")
+            xmin,ymin,xmax,ymax = self.get_rect_min_max(self.get_corners())
+            x2min,y2min,x2max,y2max = self.get_rect_min_max(obj.get_corners())
 
+            if xmax <= x2max and xmin >= x2min and ymax <= y2max and ymin >= y2min:
+                print("collision")
+                return True
+            elif xmax <= x2max and xmin <= x2min and ymax <= y2max and ymin >= y2min:
+                return True
+            elif x2max <= xmax and x2min >= xmin and y2max <= ymax and y2min >= ymin:
+                print("collision")
+                return True
+            elif xmax < x2min or xmin > x2max or ymax < y2min or y2max >ymax:
+                print("no collision")
+                return False
+            else:
+                print("collision")
+                return True
         
     def get_rotated_corner(self,corner,angle,mid):
         angleInRad = angle * np.pi/180
@@ -51,25 +84,8 @@ class Robot(Obstacle):
         rotatedY = translatedCorner[0]*np.sin(angleInRad) + translatedCorner[1]*np.cos(angleInRad)
         return [rotatedX + mid[0],rotatedY + mid[1]]
 
-    def get_corners(self):
-        c1,c2,c3,c4 = [0,0],[0,0],[0,0],[0,0]
-        centerPoint = self.get_postion()
-        c1[0] = centerPoint[0] - self.width/2
-        c1[1] = centerPoint[1] - self.height/2
-            
-        c2[0] = centerPoint[0] - self.width/2
-        c2[1] = centerPoint[1] + self.height/2
-
-        c3[0] = centerPoint[0] + self.width/2
-        c3[1] = centerPoint[1] + self.height/2
-
-        c4[0] = centerPoint[0] + self.width/2
-        c4[1] = centerPoint[1] - self.height/2
-
-        return[c1,c2,c3,c4]
-
-    def get_collision_lines(self,obj):
-        corners = self.get_corners()
+    def get_collision_lines(self,obj,corners):
+        #corners = self.get_corners()
 
         left_down = self.get_rotated_corner(corners[0],obj.angle,obj.position)
         right_down = self.get_rotated_corner(corners[1],obj.angle,obj.position)
@@ -78,6 +94,10 @@ class Robot(Obstacle):
 
         return [[left_down,left_up],[left_down,right_down],[left_up,right_up],[right_up,left_down]]
 
+    def get_rect_min_max(self,corners):
+        xmax, ymax = np.max(corners,axis=0)
+        xmin, ymin = np.min(corners,axis=0)
+        return xmin,ymin,xmax,ymax
     def perp(self,a) :
         b = np.empty_like(a)
         b[0] = -a[1]
@@ -95,5 +115,8 @@ class Robot(Obstacle):
         num = np.dot( dap, dp )
         intersection = (num / denom.astype(float))*db + b[0]
         if not np.isnan(intersection).any():
-            return np.linalg.norm(intersection- a[0]) >= np.linalg.norm(da)
+            pointOnFirstSegement = np.absolute(np.linalg.norm(intersection- a[0])) <= np.absolute(np.linalg.norm(da))
+            pointOnSecondSegement = np.absolute(np.linalg.norm(intersection- b[0])) <= np.absolute(np.linalg.norm(db))
+            if pointOnFirstSegement and pointOnSecondSegement:
+                return pointOnFirstSegement and pointOnSecondSegement
         return False
