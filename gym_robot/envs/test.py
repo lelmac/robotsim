@@ -67,7 +67,16 @@ class TestRobotMethods(unittest.TestCase):
         self.robot = Robot([300,300],100,50)
         obstacle = Obstacle([400,300],100,100)
         self.assertTrue(self.robot.collision(obstacle))
-
+    def test_collision_rotation(self):
+        self.robot = Robot([300,300],100,100)
+        self.robot.angle = 46
+        obstacle = Obstacle([350,350],150,150)
+        self.assertTrue(self.robot.collision(obstacle))
+    def test__edge_collision_rotation(self):
+        self.robot = Robot([300,300],50,50)
+        self.robot.angle = 45
+        obstacle = Obstacle([350,350],100,50)
+        self.assertTrue(self.robot.collision(obstacle))
     def test_no_collision(self):
         self.robot = Robot([300,300],50,30)
         obstacle = Obstacle([500,500],30,30)

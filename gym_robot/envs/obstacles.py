@@ -59,24 +59,25 @@ class Robot(Obstacle):
     #                    print("collision")
     #                    return True
         if type(obj) is Obstacle:
-            xmin,ymin,xmax,ymax = self.get_rect_min_max(self.get_corners())
+            xmin,ymin,xmax,ymax = self.get_rect_min_max(self.get_rotated_corners())
             x2min,y2min,x2max,y2max = self.get_rect_min_max(obj.get_corners())
 
-            if xmax <= x2max and xmin >= x2min and ymax <= y2max and ymin >= y2min:
+            if xmin <= x2max and xmax >= x2min and ymin <= y2max and ymax >= y2min:
                 print("collision")
                 return True
-            elif xmax <= x2max and xmin <= x2min and ymax <= y2max and ymin >= y2min:
-                return True
-            elif x2max <= xmax and x2min >= xmin and y2max <= ymax and y2min >= ymin:
-                print("collision")
-                return True
-            elif xmax < x2min or xmin > x2max or ymax < y2min or y2max >ymax:
+            else:
                 print("no collision")
                 return False
-            else:
-                print("collision")
-                return True
-        
+
+    def get_rotated_corners(self):
+        corners = self.get_corners()
+        for i in xrange(len(corners)):
+            angleInRad = self.angle * np.pi/180
+            translatedCorner = np.subtract(self.position,corners[i])
+            rotatedX = translatedCorner[0]*np.cos(angleInRad) - translatedCorner[1]*np.sin(angleInRad)
+            rotatedY = translatedCorner[0]*np.sin(angleInRad) + translatedCorner[1]*np.cos(angleInRad)
+            corners[i] = [rotatedX + self.position[0],rotatedY + self.position[1]]
+        return corners
     def get_rotated_corner(self,corner,angle,mid):
         angleInRad = angle * np.pi/180
         translatedCorner = np.subtract(mid,corner)
