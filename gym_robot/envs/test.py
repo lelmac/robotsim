@@ -1,5 +1,6 @@
 import unittest2 as unittest
 from obstacles import Robot, Obstacle
+import numpy as np
 
 
 class TestRobotMethods(unittest.TestCase):
@@ -40,14 +41,16 @@ class TestRobotMethods(unittest.TestCase):
         p2 = [4, 4]
         p3 = [4, 0]
         p4 = [0, 4]
-        self.assertTrue(self.robot.line_intersect([p1, p2], [p3, p4]))
+        intersection = np.array([2,2])
+        self.assertEqual(self.robot.line_intersect([p1, p2], [p3, p4]).all(),intersection.all())
 
     def test_line_intersect2(self):
         p1 = [0, 0]
         p2 = [4, 4]
         p3 = [4, 0]
         p4 = [0, 4]
-        self.assertTrue(self.robot.line_intersect([p2, p1], [p4, p3]))
+        intersection = np.array([2,2])
+        self.assertEqual(self.robot.line_intersect([p2, p1], [p4, p3]).all(),intersection.all())
 
     def test_line_intersect_no_intersection(self):
         p1 = [6, -2]
@@ -86,7 +89,22 @@ class TestRobotMethods(unittest.TestCase):
         self.robot = Robot([300, 300], 50, 30)
         obstacle = Obstacle([500, 500], 30, 30)
         self.assertFalse(self.robot.collision(obstacle))
+    
+    def test_line_intersect3(self):
+        p1 = [0, 0]
+        p2 = [4, 4]
+        p3 = [4, 0]
+        p4 = [0, 4]
+        intersection = np.array([2,2])
+        
+        self.assertEqual(self.robot.intersects(p1, p2, p3, p4).all(),intersection.all())
 
-
+    def test_line_intersect4(self):
+        p1 = [1, 1]
+        p2 = [4, 4]
+        p3 = [4, 0]
+        p4 = [0, 4]
+        intersection = np.array([2,2])
+        self.assertEqual(self.robot.intersects(p2, p1, p4, p3).all(),intersection.all())
 if __name__ == '__main__':
     unittest.main()

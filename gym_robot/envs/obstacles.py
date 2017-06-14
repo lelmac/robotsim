@@ -98,44 +98,37 @@ class Robot(Obstacle):
             np.sin(angleInRad) + translatedCorner[1] * np.cos(angleInRad)
         return [rotatedX + mid[0], rotatedY + mid[1]]
 
-    def get_collision_lines(self, obj, corners):
-        #corners = self.get_corners()
-
-        left_down = self.get_rotated_corner(
-            corners[0], obj.angle, obj.position)
-        right_down = self.get_rotated_corner(
-            corners[1], obj.angle, obj.position)
-        right_up = self.get_rotated_corner(corners[2], obj.angle, obj.position)
-        left_up = self.get_rotated_corner(corners[3], obj.angle, obj.position)
-
-        return [[left_down, left_up], [left_down, right_down], [left_up, right_up], [right_up, left_down]]
+    # returns measured Distance of US Sensor
+    def getUltraSonicSensorData(self):
+        # get Position
+        pos = [self.height, self.width / 2]
+        pos = np.add(pos, self.get_position())
+        angleInRad = self.angle * np.pi / 180
+        pos[0] = pos[0] * np.cos(angleInRad) - pos[1] * np.sin(angleInRad)
+        pos[1] = pos[0] * np.sin(angleInRad) + pos[1] * np.cos(angleInRad)
+        # send Ray
 
     def get_rect_min_max(self, corners):
         xmax, ymax = np.max(corners, axis=0)
         xmin, ymin = np.min(corners, axis=0)
         return xmin, ymin, xmax, ymax
 
-    def perp(self, a):
-        b = np.empty_like(a)
-        b[0] = -a[1]
-        b[1] = a[0]
-        return b
+    def intersects(self, rayOrigin, rayDirection, p1 ,p2):
+        rayOrigin = np.array(rayOrigin, dtype=np.float)
+        rayDirection = np.array(self.norm(rayDirection), dtype=np.float)
+        point1 = np.array(p1, dtype=np.float)
+        point2 = np.array(p2, dtype=np.float)
+        v1 = rayOrigin - point1
+        v2 = point2 - point1
+        v3 = np.array([-rayDirection[1], rayDirection[0]])
+        t1 = np.cross(v2, v1) / np.dot(v2, v3)
+        t2 = np.dot(v1, v3) / np.dot(v2, v3)
+        if t1 >= 0.0 and t2 >= 0.0 and t2 <= 1.0:
+            return np.array([rayOrigin + t1 * rayDirection])
+        return np.array([np.inf,np.inf])
 
-    def line_intersect(self, a, b):
-        a = np.array(a)
-        b = np.array(b)
-        da = a[1] - a[0]
-        db = b[1] - b[0]
-        dp = a[0] - b[0]
-        dap = self.perp(da)
-        denom = np.dot(dap, db)
-        num = np.dot(dap, dp)
-        intersection = (num / denom.astype(float)) * db + b[0]
-        if not np.isnan(intersection).any():
-            pointOnFirstSegement = np.absolute(np.linalg.norm(
-                intersection - a[0])) <= np.absolute(np.linalg.norm(da))
-            pointOnSecondSegement = np.absolute(np.linalg.norm(
-                intersection - b[0])) <= np.absolute(np.linalg.norm(db))
-            if pointOnFirstSegement and pointOnSecondSegement:
-                return pointOnFirstSegement and pointOnSecondSegement
-        return False
+    def magnitude(self, vector):
+        return np.sqrt(np.dot(np.array(vector),np.array(vector)))
+
+    def norm(self, vector):
+        return np.array(vector)/self.magnitude(np.array(vector))
