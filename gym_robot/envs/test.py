@@ -36,29 +36,6 @@ class TestRobotMethods(unittest.TestCase):
         pos[1] = pos[1] + increment
         self.assertEquals(self.robot.get_postion(), pos)
 
-    def test_line_intersect(self):
-        p1 = [0, 0]
-        p2 = [4, 4]
-        p3 = [4, 0]
-        p4 = [0, 4]
-        intersection = np.array([2,2])
-        self.assertEqual(self.robot.line_intersect([p1, p2], [p3, p4]).all(),intersection.all())
-
-    def test_line_intersect2(self):
-        p1 = [0, 0]
-        p2 = [4, 4]
-        p3 = [4, 0]
-        p4 = [0, 4]
-        intersection = np.array([2,2])
-        self.assertEqual(self.robot.line_intersect([p2, p1], [p4, p3]).all(),intersection.all())
-
-    def test_line_intersect_no_intersection(self):
-        p1 = [6, -2]
-        p2 = [2, 2]
-        p3 = [-2, 0]
-        p4 = [2, 4]
-        self.assertFalse(self.robot.line_intersect([p1, p2], [p3, p4]))
-
     def test_collision(self):
         obstacle = Obstacle([350, 350], 150, 150)
         self.assertTrue(self.robot.collision(obstacle))
@@ -106,5 +83,20 @@ class TestRobotMethods(unittest.TestCase):
         p4 = [0, 4]
         intersection = np.array([2,2])
         self.assertEqual(self.robot.intersects(p2, p1, p4, p3).all(),intersection.all())
+    
+    def test_ray_casting(self):
+        self.robot = Robot([300, 300], 50, 50)
+        self.robot.angle = 0
+        obstacle = Obstacle([400, 300], 50, 50)
+        r = self.robot.getUltraSonicSensorData([obstacle])
+        self.assertEqual(r,50.0)
+    
+    def test_ray_casting_nohit(self):
+        self.robot = Robot([300, 300], 50, 50)
+        self.robot.angle = 0
+        obstacle = Obstacle([300, 400], 50, 50)
+        r = self.robot.getUltraSonicSensorData([obstacle])
+        self.assertEqual(r,np.inf)
+
 if __name__ == '__main__':
     unittest.main()

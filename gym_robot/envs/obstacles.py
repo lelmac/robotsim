@@ -99,14 +99,35 @@ class Robot(Obstacle):
         return [rotatedX + mid[0], rotatedY + mid[1]]
 
     # returns measured Distance of US Sensor
-    def getUltraSonicSensorData(self):
+    def getUltraSonicSensorData(self,objectList):
         # get Position
-        pos = [self.height, self.width / 2]
+        range_us = 100
+        #relative position of ultrasonic sensor
+        pos = [self.height/2, 0]
         pos = np.add(pos, self.get_position())
+        direction = [range_us,0]
         angleInRad = self.angle * np.pi / 180
         pos[0] = pos[0] * np.cos(angleInRad) - pos[1] * np.sin(angleInRad)
         pos[1] = pos[0] * np.sin(angleInRad) + pos[1] * np.cos(angleInRad)
         # send Ray
+        minimum = np.inf
+        for obj in objectList:
+            corners = obj.get_corners()
+            segments = self.get_segments(corners)
+            for s in segments:
+                intersection = self.intersects(pos,direction,s[0],s[1])
+                length = np.linalg.norm(intersection-pos)
+                if length < minimum:
+                    minimum = length
+        return minimum
+
+    def get_segments(self,corners):
+        corners = np.array(corners)
+        v1 = np.array([corners[0],corners[1]])
+        v2 = np.array([corners[1],corners[2]])
+        v3 = np.array([corners[2],corners[3]])
+        v4 = np.array([corners[3],corners[0]])  
+        return np.array([v1,v2,v3,v4])      
 
     def get_rect_min_max(self, corners):
         xmax, ymax = np.max(corners, axis=0)
@@ -132,3 +153,9 @@ class Robot(Obstacle):
 
     def norm(self, vector):
         return np.array(vector)/self.magnitude(np.array(vector))
+
+    def rotate_point(self,point,angle):
+        angleInRad = angle * np.pi / 180
+        point[0] = point[0] * np.cos(angleInRad) - point[1] * np.sin(angleInRad)
+        point[1] = point[0] * np.sin(angleInRad) + point[1] * np.cos(angleInRad)
+        return point
