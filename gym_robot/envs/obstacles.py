@@ -45,7 +45,7 @@ class Robot(Obstacle):
         Obstacle.__init__(self, position, width, height)
         self.angle = 0
         self.speed = 0.5
-        self.turn_speed = 1
+        self.turn_speed = 0.1
 
     def get_position(self):
         return self.position
@@ -103,23 +103,25 @@ class Robot(Obstacle):
         # get Position
         range_us = 100
         #relative position of ultrasonic sensor
-        pos = [self.height/2, 0]
-        pos = np.add(pos, self.get_position())
-        direction = [range_us,0]
+        #position jedes mal addiert
         angleInRad = self.angle * np.pi / 180
-        pos[0] = pos[0] * np.cos(angleInRad) - pos[1] * np.sin(angleInRad)
-        pos[1] = pos[0] * np.sin(angleInRad) + pos[1] * np.cos(angleInRad)
+        dirVec = np.array([np.cos(angleInRad),np.sin(angleInRad)])
+        posRot = np.add(dirVec * self.width/2, self.get_position())
+        direction = dirVec*range_us
+        
         # send Ray
-        minimum = np.inf
+        minimum = 255
+        i = [[0,0]]
         for obj in objectList:
             corners = obj.get_corners()
             segments = self.get_segments(corners)
             for s in segments:
-                intersection = self.intersects(pos,direction,s[0],s[1])
-                length = np.linalg.norm(intersection-pos)
+                intersection = self.intersects(posRot,direction,s[0],s[1])
+                length = np.linalg.norm(intersection-posRot)
                 if length < minimum:
                     minimum = length
-        return minimum
+                    i = intersection
+        return minimum,i[0],posRot
 
     def get_segments(self,corners):
         corners = np.array(corners)

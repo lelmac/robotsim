@@ -23,7 +23,7 @@ class RobotEnv(gym.Env):
         self.obstacle = Obstacle([500, 300], 50, 50)
         self.speed = 0.5
         self.pad_width = 1
-        self.action_space = spaces.Discrete(3)  # Left, Right, Foward
+        self.action_space = spaces.Discrete(4)  # Left, Right, Foward
         self.observation_space = spaces.Box(
             low=0, high=600, shape=(self.height, self.width))
 
@@ -39,13 +39,16 @@ class RobotEnv(gym.Env):
     def _step(self, action):
         assert self.action_space.contains(
             action), "%r (%s) invalid" % (action, type(action))
-        self.robot.collision(self.obstacle)
+        
         if(action == 0):
-            self.robot.move_forward()
+            #self.robot.move_forward()
+            pass
         if(action == 1):
             self.robot.turn_left()
         if(action == 2):
             self.robot.turn_right()
+        if(action == 3):
+            self.robot.move_forward()   
         reward, done = self.reward()
         return np.copy(self.state), reward, done, {}
 
@@ -53,10 +56,8 @@ class RobotEnv(gym.Env):
         pos = self.robot.get_postion()
         x = pos[0]
         y = pos[1]
-        if y > self.width - self.robot_width / 2 or x < self.robot_width / 2:
-            return -1, True
-        if x > self.height - self.robot_height / 2 or y < self.robot_height / 2:
-            return -1, True
+        if self.robot.collision(self.obstacle):
+            return -100, True
         return 0, False
 
     def _reset(self):
@@ -78,23 +79,32 @@ class RobotEnv(gym.Env):
                 self.width, self.height, display=self.display)
 
             robot = rendering.FilledPolygon(self.robot.get_drawing())
-
+            cast = rendering.make_circle(2,)
+            start = rendering.make_circle(2,)
             obs = rendering.FilledPolygon(self.obstacle.get_drawing())
             self.obtrans = rendering.Transform()
+            self.casttrans = rendering.Transform()
+            self.starttrans = rendering.Transform()
             self.robottrans = rendering.Transform()
             robot.add_attr(self.robottrans)
             obs.add_attr(self.obtrans)
+            cast.add_attr(self.casttrans)
+            obs.add_attr(self.starttrans)
+            cast.set_color(1,0,0)
             self.viewer.add_geom(robot)
             self.viewer.add_geom(obs)
+            self.viewer.add_geom(cast)
         if self.state is None:
             return None
 
+        min, points, pos = self.robot.getUltraSonicSensorData([self.obstacle])
+        print(min)
         x, y = self.obstacle.get_postion()[0], self.obstacle.get_postion()[1]
         self.obtrans.set_translation(x, y)
         x = self.robot.get_postion()[0]
         y = self.robot.get_postion()[1]
         rot = self.robot.get_rotation()
-
+        self.casttrans.set_translation(points[0],points[1])
         self.robottrans.set_translation(x, y)
         self.robottrans.set_rotation(rot * np.pi / 180)
         return self.viewer.render()
