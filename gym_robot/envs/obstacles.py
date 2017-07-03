@@ -18,6 +18,12 @@ class Obstacle(object):
     def get_drawing(self):
         l, r, t, b = -self.width / 2, self.width / 2, self.height / 2, -self.height / 2
         return [(l, b), (l, t), (r, t), (r, b)]
+    
+    def get_drawing_static_position(self):
+        x = self.get_postion()[0]
+        y = self.get_postion()[1]
+        l, r, t, b = -self.width / 2 + x, self.width / 2 + x, self.height / 2 + y, -self.height / 2 + y
+        return [(l, b), (l, t), (r, t), (r, b)]
 
     def get_postion(self):
         return self.position
@@ -45,7 +51,7 @@ class Robot(Obstacle):
         Obstacle.__init__(self, position, width, height)
         self.angle = 0
         self.speed = 0.5
-        self.turn_speed = 0.1
+        self.turn_speed = 0.5
 
     def get_position(self):
         return self.position

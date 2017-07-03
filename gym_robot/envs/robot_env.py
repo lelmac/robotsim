@@ -17,10 +17,17 @@ class RobotEnv(gym.Env):
         self.height = 600
         self.robot_width = 50
         self.robot_height = 30
-
+        self.obstacles = []
+        wall_size = 5
         self.robot = Robot([self.width / 2, self.height / 2],
                            self.robot_width, self.robot_height)
         self.obstacle = Obstacle([500, 300], 50, 50)
+        leftWall  = Obstacle([0,self.height/2],wall_size,self.height)
+        rightWall = Obstacle([self.width,self.height/2],wall_size,self.height)
+        topWall = Obstacle([self.width/2,self.height],self.width,wall_size)
+        botWall = Obstacle([self.width/2,0],self.width,wall_size)
+        self.obstacles = [self.obstacle,leftWall,rightWall,topWall,botWall]
+        self.walls = [leftWall,rightWall,topWall,botWall]
         self.speed = 0.5
         self.pad_width = 1
         self.action_space = spaces.Discrete(4)  # Left, Right, Foward
@@ -80,8 +87,12 @@ class RobotEnv(gym.Env):
 
             robot = rendering.FilledPolygon(self.robot.get_drawing())
             cast = rendering.make_circle(2,)
-            start = rendering.make_circle(2,)
+            start = rendering.make_circle(3)
             obs = rendering.FilledPolygon(self.obstacle.get_drawing())
+            for wall in self.walls:
+                draw = rendering.FilledPolygon(wall.get_drawing_static_position())
+                draw.set_color(0,0,1)
+                self.viewer.add_geom(draw)
             self.obtrans = rendering.Transform()
             self.casttrans = rendering.Transform()
             self.starttrans = rendering.Transform()
@@ -89,22 +100,37 @@ class RobotEnv(gym.Env):
             robot.add_attr(self.robottrans)
             obs.add_attr(self.obtrans)
             cast.add_attr(self.casttrans)
-            obs.add_attr(self.starttrans)
+            start.add_attr(self.starttrans)
             cast.set_color(1,0,0)
+            start.set_color(1,0,0)
             self.viewer.add_geom(robot)
+            self.viewer.add_geom(start)
             self.viewer.add_geom(obs)
             self.viewer.add_geom(cast)
+            
         if self.state is None:
             return None
 
-        min, points, pos = self.robot.getUltraSonicSensorData([self.obstacle])
+        min, points, pos = self.robot.getUltraSonicSensorData(self.obstacles)
         print(min)
         x, y = self.obstacle.get_postion()[0], self.obstacle.get_postion()[1]
         self.obtrans.set_translation(x, y)
         x = self.robot.get_postion()[0]
         y = self.robot.get_postion()[1]
         rot = self.robot.get_rotation()
+        self.starttrans.set_translation(pos[0],pos[1])
         self.casttrans.set_translation(points[0],points[1])
+        
         self.robottrans.set_translation(x, y)
         self.robottrans.set_rotation(rot * np.pi / 180)
         return self.viewer.render()
+    
+    def create_environment(self):
+        robot = rendering.FilledPolygon(self.robot.get_drawing())
+        cast = rendering.make_circle(2,)
+        start = rendering.make_circle(3)
+        obs = rendering.FilledPolygon(self.obstacle.get_drawing())
+        self.obtrans = rendering.Transform()
+        self.casttrans = rendering.Transform()
+        self.starttrans = rendering.Transform()
+        self.robottrans = rendering.Transform()
