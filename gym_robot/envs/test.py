@@ -11,12 +11,12 @@ class TestRobotMethods(unittest.TestCase):
     def test_turn_left(self):
         currentAngle = self.robot.get_rotation()
         self.robot.turn_left()
-        self.assertEquals(self.robot.get_rotation(), currentAngle + 1)
+        self.assertEquals(self.robot.get_rotation(), currentAngle + self.robot.turn_speed)
 
     def test_turn_right(self):
         currentAngle = self.robot.get_rotation()
         self.robot.turn_right()
-        self.assertEquals(self.robot.get_rotation(), currentAngle - 1)
+        self.assertEquals(self.robot.get_rotation(), currentAngle - self.robot.turn_speed)
 
     def test_move_forward_straight(self):
         self.robot.angle = 0
@@ -88,15 +88,15 @@ class TestRobotMethods(unittest.TestCase):
         self.robot = Robot([300, 300], 50, 50)
         self.robot.angle = 0
         obstacle = Obstacle([400, 300], 50, 50)
-        r = self.robot.getUltraSonicSensorData([obstacle])
+        r,p,p2 = self.robot.getUltraSonicSensorData([obstacle])
         self.assertEqual(r,50.0)
     
     def test_ray_casting_nohit(self):
         self.robot = Robot([300, 300], 50, 50)
         self.robot.angle = 0
         obstacle = Obstacle([300, 400], 50, 50)
-        r = self.robot.getUltraSonicSensorData([obstacle])
-        self.assertEqual(r,np.inf)
+        r,p,p2 = self.robot.getUltraSonicSensorData([obstacle])
+        self.assertEqual(r,255)
 
 if __name__ == '__main__':
     unittest.main()

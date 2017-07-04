@@ -1,5 +1,5 @@
 import numpy as np
-
+import linalg_helper
 
 class Obstacle(object):
     def __init__(self, position, width, height):
@@ -72,15 +72,17 @@ class Robot(Obstacle):
 
     def collision(self, obj):
         if type(obj) is Obstacle:
-            xmin, ymin, xmax, ymax = self.get_rect_min_max(
-                self.get_rotated_corners())
-            x2min, y2min, x2max, y2max = self.get_rect_min_max(
-                obj.get_corners())
-
-            if xmin <= x2max and xmax >= x2min and ymin <= y2max and ymax >= y2min:
-                return True
-            else:
-                return False
+            #xmin, ymin, xmax, ymax = self.get_rect_min_max(self.get_rotated_corners())
+            #x2min, y2min, x2max, y2max = self.get_rect_min_max(  obj.get_corners())
+            
+            c = self.get_corners()
+            c2 = obj.get_corners()
+            ret = linalg_helper.separating_axis_theorem(c,c2)
+            return ret
+            #if xmin <= x2max and xmax >= x2min and ymin <= y2max and ymax >= y2min:
+            #    return True
+            #else:
+            #    return False
 
     def get_rotated_corners(self):
         corners = self.get_corners()

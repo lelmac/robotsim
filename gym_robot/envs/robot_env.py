@@ -48,23 +48,20 @@ class RobotEnv(gym.Env):
             action), "%r (%s) invalid" % (action, type(action))
         
         if(action == 0):
-            #self.robot.move_forward()
+            self.robot.move_forward()
             pass
         if(action == 1):
             self.robot.turn_left()
         if(action == 2):
-            self.robot.turn_right()
-        if(action == 3):
-            self.robot.move_forward()   
+            self.robot.turn_right()   
         reward, done = self.reward()
         return np.copy(self.state), reward, done, {}
 
     def reward(self):
         pos = self.robot.get_postion()
-        x = pos[0]
-        y = pos[1]
-        if self.robot.collision(self.obstacle):
-            return -100, True
+        for obs in self.obstacles:         
+            if self.robot.collision(obs):
+                return -100, True
         return 0, False
 
     def _reset(self):
@@ -91,7 +88,7 @@ class RobotEnv(gym.Env):
             obs = rendering.FilledPolygon(self.obstacle.get_drawing())
             for wall in self.walls:
                 draw = rendering.FilledPolygon(wall.get_drawing_static_position())
-                draw.set_color(0,0,1)
+                #draw.set_color(0,0,1)
                 self.viewer.add_geom(draw)
             self.obtrans = rendering.Transform()
             self.casttrans = rendering.Transform()
