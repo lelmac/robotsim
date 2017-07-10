@@ -1,4 +1,6 @@
 import unittest2 as unittest
+from shapely.geometry import Polygon
+import linalg_helper
 from obstacles import Robot, Obstacle
 import numpy as np
 
@@ -88,15 +90,24 @@ class TestRobotMethods(unittest.TestCase):
         self.robot = Robot([300, 300], 50, 50)
         self.robot.angle = 0
         obstacle = Obstacle([400, 300], 50, 50)
-        r,p,p2 = self.robot.getUltraSonicSensorData([obstacle])
+        r,p,p2 = self.robot.rayCast([obstacle])
         self.assertEqual(r,50.0)
     
     def test_ray_casting_nohit(self):
         self.robot = Robot([300, 300], 50, 50)
         self.robot.angle = 0
         obstacle = Obstacle([300, 400], 50, 50)
-        r,p,p2 = self.robot.getUltraSonicSensorData([obstacle])
+        r,p,p2 = self.robot.rayCast([obstacle])
         self.assertEqual(r,255)
+
+    def test_coll_rotated(self):
+        v1 = [[425.643330675622, 247.83978898773091], [425.643330675622, 277.83978898773091], [475.643330675622, 277.83978898773091], [475.643330675622, 247.83978898773091]]
+        v2 = [[475, 275], [475, 325], [525, 325], [525, 275]]
+        p1 = Polygon(v1)
+        p2 = Polygon(v2)
+        self.assertFalse(p1.intersects(p2))
+        #self.assertFalse(linalg_helper.separating_axis_theorem(v1,v2))
+
 
 if __name__ == '__main__':
     unittest.main()

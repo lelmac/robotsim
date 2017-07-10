@@ -5,8 +5,9 @@ import numpy as np
 import random
 from gym.envs.classic_control import rendering
 import time
+from random import randint
 
-STILL, LEFT, RIGHT = 0, 1, 2
+
 
 
 class RobotEnv(gym.Env):
@@ -19,8 +20,11 @@ class RobotEnv(gym.Env):
         self.robot_height = 30
         self.obstacles = []
         wall_size = 5
-        self.robot = Robot([self.width / 2, self.height / 2],
-                           self.robot_width, self.robot_height)
+        x = randint(100, 500)
+        y = randint(100,500)
+       # self.robot = Robot([self.width / 2, self.height / 2],
+       #                    self.robot_width, self.robot_height)
+        self.robot = Robot([x,y],40,25)
         self.obstacle = Obstacle([500, 300], 50, 50)
         leftWall  = Obstacle([0,self.height/2],wall_size,self.height)
         rightWall = Obstacle([self.width,self.height/2],wall_size,self.height)
@@ -30,9 +34,9 @@ class RobotEnv(gym.Env):
         self.walls = [leftWall,rightWall,topWall,botWall]
         self.speed = 0.5
         self.pad_width = 1
-        self.action_space = spaces.Discrete(4)  # Left, Right, Foward
+        self.action_space = spaces.Discrete(3)  # Left, Right, Foward
         self.observation_space = spaces.Box(
-            low=0, high=600, shape=(self.height, self.width))
+            low=0, high=600, shape=(3,))
 
         self.viewer = None
         self.state = None
@@ -49,23 +53,26 @@ class RobotEnv(gym.Env):
         
         if(action == 0):
             self.robot.move_forward()
-            pass
         if(action == 1):
             self.robot.turn_left()
         if(action == 2):
             self.robot.turn_right()   
         reward, done = self.reward()
+        if(action == 0):
+            reward = reward + 5
+        mins, p ,p = self.robot.usSensors(self.obstacles)
+        self.state = np.array(mins)
+        #print(self.state)
         return np.copy(self.state), reward, done, {}
 
     def reward(self):
-        pos = self.robot.get_postion()
         for obs in self.obstacles:         
             if self.robot.collision(obs):
                 return -100, True
         return 0, False
 
     def _reset(self):
-        self.state = np.zeros(5,)
+        self.state = np.zeros(3,)
         # x
         self.robot = Robot([self.width / 2, self.height / 2],
                            self.robot_width, self.robot_height)
@@ -83,7 +90,9 @@ class RobotEnv(gym.Env):
                 self.width, self.height, display=self.display)
 
             robot = rendering.FilledPolygon(self.robot.get_drawing())
-            cast = rendering.make_circle(2,)
+            c1 = rendering.make_circle(2)
+            c2 = rendering.make_circle(2)
+            c3 = rendering.make_circle(2)
             start = rendering.make_circle(3)
             obs = rendering.FilledPolygon(self.obstacle.get_drawing())
             for wall in self.walls:
@@ -92,32 +101,43 @@ class RobotEnv(gym.Env):
                 self.viewer.add_geom(draw)
             self.obtrans = rendering.Transform()
             self.casttrans = rendering.Transform()
+            self.casttrans2 = rendering.Transform()
+            self.casttrans3 = rendering.Transform()
             self.starttrans = rendering.Transform()
             self.robottrans = rendering.Transform()
             robot.add_attr(self.robottrans)
             obs.add_attr(self.obtrans)
-            cast.add_attr(self.casttrans)
+            c1.add_attr(self.casttrans)
+            c2.add_attr(self.casttrans2)
+            c3.add_attr(self.casttrans3)
             start.add_attr(self.starttrans)
-            cast.set_color(1,0,0)
+            c1.set_color(1,0,0)
+            c2.set_color(1,0,0)
+            c3.set_color(1,0,0)
             start.set_color(1,0,0)
             self.viewer.add_geom(robot)
             self.viewer.add_geom(start)
             self.viewer.add_geom(obs)
-            self.viewer.add_geom(cast)
+            self.viewer.add_geom(c1)
+            self.viewer.add_geom(c2)
+            self.viewer.add_geom(c3)
             
         if self.state is None:
             return None
 
-        min, points, pos = self.robot.getUltraSonicSensorData(self.obstacles)
-        print(min)
+     #   min, points, pos = self.robot.rayCast(self.obstacles)
+        min, points, pos = self.robot.usSensors(self.obstacles)
+        #print(min)
         x, y = self.obstacle.get_postion()[0], self.obstacle.get_postion()[1]
         self.obtrans.set_translation(x, y)
         x = self.robot.get_postion()[0]
         y = self.robot.get_postion()[1]
         rot = self.robot.get_rotation()
         self.starttrans.set_translation(pos[0],pos[1])
-        self.casttrans.set_translation(points[0],points[1])
-        
+        self.casttrans.set_translation(points[1][0],points[1][1])
+        self.casttrans2.set_translation(points[0][0],points[0][1])
+        self.casttrans3.set_translation(points[2][0],points[2][1])
+
         self.robottrans.set_translation(x, y)
         self.robottrans.set_rotation(rot * np.pi / 180)
         return self.viewer.render()

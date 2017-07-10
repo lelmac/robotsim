@@ -46,6 +46,7 @@ def rollout(env):
     obser = env.reset()
     skip = 0
     for t in range(ROLLOUT_TIME):
+        print(t)
         if not skip:
             #print("taking action {}".format(human_agent_action))
             a = human_agent_action

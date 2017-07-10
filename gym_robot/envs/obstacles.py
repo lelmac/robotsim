@@ -1,5 +1,6 @@
 import numpy as np
 import linalg_helper
+from shapely.geometry import Polygon
 
 class Obstacle(object):
     def __init__(self, position, width, height):
@@ -50,8 +51,8 @@ class Robot(Obstacle):
     def __init__(self, position, width, height):
         Obstacle.__init__(self, position, width, height)
         self.angle = 0
-        self.speed = 0.5
-        self.turn_speed = 0.5
+        self.speed = 2.5
+        self.turn_speed = 1
 
     def get_position(self):
         return self.position
@@ -75,14 +76,14 @@ class Robot(Obstacle):
             #xmin, ymin, xmax, ymax = self.get_rect_min_max(self.get_rotated_corners())
             #x2min, y2min, x2max, y2max = self.get_rect_min_max(  obj.get_corners())
             
-            c = self.get_corners()
-            c2 = obj.get_corners()
-            ret = linalg_helper.separating_axis_theorem(c,c2)
+            robot_corners = self.get_rotated_corners()
+            obj_corners = obj.get_corners()
+            p1 = Polygon(robot_corners )
+            p2 = Polygon(obj_corners)
+            ret = p1.intersects(p2)
+            
             return ret
-            #if xmin <= x2max and xmax >= x2min and ymin <= y2max and ymax >= y2min:
-            #    return True
-            #else:
-            #    return False
+
 
     def get_rotated_corners(self):
         corners = self.get_corners()
@@ -106,20 +107,27 @@ class Robot(Obstacle):
             np.sin(angleInRad) + translatedCorner[1] * np.cos(angleInRad)
         return [rotatedX + mid[0], rotatedY + mid[1]]
 
-    # returns measured Distance of US Sensor
-    def getUltraSonicSensorData(self,objectList):
-        # get Position
-        range_us = 100
+    def usSensors(self,objectList):
+        us_angles = [-20,0,20]
+        mins = [0,0,0]
+        interections = [0,0,0]
+        start = [0,0,0]
+        for i in range(len(us_angles)):
+            mins[i],interections[i],start[i] = self.rayCast(objectList,us_angles[i])
+        return mins,interections,start[1]
+
+    # returns distance to nearest object
+    def rayCast(self,objectList,dirAngle=0,vec_range=255):
         #relative position of ultrasonic sensor
-        #position jedes mal addiert
-        angleInRad = self.angle * np.pi / 180
+        
+        angleInRad = (self.angle + dirAngle) * np.pi / 180
         dirVec = np.array([np.cos(angleInRad),np.sin(angleInRad)])
         posRot = np.add(dirVec * self.width/2, self.get_position())
-        direction = dirVec*range_us
+        direction = dirVec*vec_range
         
         # send Ray
-        minimum = 255
-        i = [[0,0]]
+        minimum = vec_range
+        min_intersection = [[0,0]]
         for obj in objectList:
             corners = obj.get_corners()
             segments = self.get_segments(corners)
@@ -128,8 +136,8 @@ class Robot(Obstacle):
                 length = np.linalg.norm(intersection-posRot)
                 if length < minimum:
                     minimum = length
-                    i = intersection
-        return minimum,i[0],posRot
+                    min_intersection = intersection
+        return minimum,min_intersection[0],posRot
 
     def get_segments(self,corners):
         corners = np.array(corners)
