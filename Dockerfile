@@ -39,8 +39,6 @@ RUN git clone https://github.com/TheOssi/robotsim
 
 WORKDIR /gym/robotsim
 
-ADD requirements.txt .
-
 CMD ["python", "setup.py"]
 
 # Install any needed packages specified in requirements.txt

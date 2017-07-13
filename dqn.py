@@ -19,7 +19,7 @@ class DQNAgent:
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
-        self.epsilon = 0.2  # exploration rate
+        self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     print(action_size)
     agent = DQNAgent(state_size, action_size)
     try:
-        agent.load("./save/robot.h5")
+        agent.load("./save/robotGPU.h5")
     except IOError:
         pass
     done = False
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         print("Abort Training \n")
         var = raw_input("Want to save the model? y/n")
         if var == 'y':
-            agent.save("./save/robot.h5")
+            agent.save("./save/robotGPU.h5")
         sys.exit(0)
     signal.signal(signal.SIGINT, soft_exit)
 
@@ -93,8 +93,8 @@ if __name__ == "__main__":
 
         #print(str(e) + "/" + str(EPISODES))
         for time in range(1000):
-            #if(e % 1 == 0):
-                #env.render()
+            if(e % 1 == 0):
+                env.render()
             action = agent.act(state)
             # print(action)
             next_state, reward, done, _ = env.step(action)
