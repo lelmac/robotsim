@@ -10,7 +10,7 @@ import signal
 import sys
 
 
-EPISODES = 300
+EPISODES = 1000
 
 
 class DQNAgent:
@@ -64,9 +64,7 @@ class DQNAgent:
         self.model.save_weights(name)
 
 
-if __name__ == "__main__":
-    var = raw_input("ab")
-    
+if __name__ == "__main__":    
     env = gym.make('robot-v0')
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
