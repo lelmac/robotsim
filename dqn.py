@@ -19,7 +19,7 @@ class DQNAgent:
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
-        self.epsilon = 1.0  # exploration rate
+        self.epsilon = 0.2  # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
@@ -65,6 +65,8 @@ class DQNAgent:
 
 
 if __name__ == "__main__":
+    var = raw_input("ab")
+    
     env = gym.make('robot-v0')
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
@@ -93,8 +95,8 @@ if __name__ == "__main__":
 
         #print(str(e) + "/" + str(EPISODES))
         for time in range(1000):
-            if(e % 50 == 0):
-                env.render()
+            #if(e % 1 == 0):
+                #env.render()
             action = agent.act(state)
             # print(action)
             next_state, reward, done, _ = env.step(action)
