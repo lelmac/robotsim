@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:2.7-slim
+FROM tensorflow:latest-gpu
 
 ENV http_proxy http://proxy.wdf.sap.corp:8080
 ENV https_proxy https://proxy.wdf.sap.corp:8080
@@ -12,6 +12,10 @@ RUN apt-get update \
     python-pyglet \
     python-setuptools \
     libpq-dev \
+    ca-certificates \
+    libgdbm3 \
+    libsqlite3-0 \
+    libssl1.0.0 \
     libjpeg-dev \
     curl \
     cmake \
@@ -19,6 +23,7 @@ RUN apt-get update \
     python-opengl \
     libboost-all-dev \
     libsdl2-dev \
+    libcupti-dev \
     wget \
     unzip \
     git \
@@ -29,7 +34,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && easy_install pip
 
-RUN git clone https://github.com/openai/gym.git
+
+RUN git clone https://github.com/openai/gym.git /
 
 WORKDIR /gym
 

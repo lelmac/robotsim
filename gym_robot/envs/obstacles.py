@@ -1,6 +1,7 @@
 import numpy as np
 import linalg_helper
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, LineString
+from shapely import speedups
 
 class Obstacle(object):
     def __init__(self, position, width, height):
@@ -8,6 +9,8 @@ class Obstacle(object):
         self.width = width
         self.angle = 0
         self.height = height
+        if speedups.available:
+            speedups.enable()
 
     def move(self, x, y):
         self.position[0] = x
@@ -119,25 +122,39 @@ class Robot(Obstacle):
     # returns distance to nearest object
     def rayCast(self,objectList,dirAngle=0,vec_range=255):
         #relative position of ultrasonic sensor
-        
         angleInRad = (self.angle + dirAngle) * np.pi / 180
         dirVec = np.array([np.cos(angleInRad),np.sin(angleInRad)])
         posRot = np.add(dirVec * self.width/2, self.get_position())
         direction = dirVec*vec_range
-        
-        # send Ray
+        p2 = posRot + direction
+        line = LineString([posRot,p2])
         minimum = vec_range
-        min_intersection = [[0,0]]
+        min_intersection = [0,0]
         for obj in objectList:
-            corners = obj.get_corners()
-            segments = self.get_segments(corners)
-            for s in segments:
-                intersection = self.intersects(posRot,direction,s[0],s[1])
-                length = np.linalg.norm(intersection-posRot)
+            obj_pol = Polygon(obj.get_corners())
+            intersection = obj_pol.intersection(line)
+            if type(intersection) is LineString:
+                intersection = list(obj_pol.intersection(line).coords)      
+                distances = np.linalg.norm(intersection-posRot,axis = 1 )
+                index = np.argmin(distances)
+                length = distances[index]
                 if length < minimum:
                     minimum = length
-                    min_intersection = intersection
-        return minimum,min_intersection[0],posRot
+                    min_intersection = np.array(intersection[index])
+        return minimum,min_intersection,posRot             
+        # send Ray
+        # minimum = vec_range
+        # min_intersection = [[0,0]]
+        # for obj in objectList:
+        #     corners = obj.get_corners()
+        #     segments = self.get_segments(corners)
+        #     for s in segments:
+        #         intersection = self.intersects(posRot,direction,s[0],s[1])
+        #         length = np.linalg.norm(intersection-posRot)
+        #         if length < minimum:
+        #             minimum = length
+        #             min_intersection = intersection
+        # return minimum,min_intersection[0],posRot
 
     def get_segments(self,corners):
         corners = np.array(corners)

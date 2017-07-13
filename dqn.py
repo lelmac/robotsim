@@ -5,6 +5,7 @@ from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
+import time
 import gym_robot
 import signal
 import sys
@@ -109,6 +110,7 @@ if __name__ == "__main__":
                       .format(e, EPISODES, sum_reward, mv_avg, time, agent.epsilon))
                 break
         if len(agent.memory) > batch_size:
+            
             agent.replay(batch_size)
         # if e % 10 == 0:
     agent.save("./save/robot.h5")
