@@ -35,7 +35,7 @@ RUN apt-get update \
     && easy_install pip
 
 
-RUN git clone https://github.com/openai/gym.git /
+RUN git clone https://github.com/openai/gym.git /gym
 
 WORKDIR /gym
 
