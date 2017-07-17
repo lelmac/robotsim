@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM tensorflow:latest-gpu
+FROM tensorflow/tensorflow:latest-gpu
 
 ENV http_proxy http://proxy.wdf.sap.corp:8080
 ENV https_proxy https://proxy.wdf.sap.corp:8080
