@@ -1,8 +1,8 @@
 # Use an official Python runtime as a parent image
 FROM tensorflow/tensorflow:latest-gpu
 
-ENV http_proxy http://proxy.wdf.sap.corp:8080
-ENV https_proxy https://proxy.wdf.sap.corp:8080
+#ENV http_proxy http://proxy.wdf.sap.corp:8080
+#ENV https_proxy https://proxy.wdf.sap.corp:8080
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
