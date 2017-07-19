@@ -51,4 +51,4 @@ CMD ["python", "setup.py"]
 RUN pip install -r requirements.txt
 
 # Run app.py when the container launches
-CMD ["python", "/gym/robotsim/a3c.py"]
+CMD ["python", "/gym/robotsim/dqn.py"]

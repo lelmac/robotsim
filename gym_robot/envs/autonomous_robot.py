@@ -73,7 +73,7 @@ class AutonomousRobot(gym.Env):
         delta = np.subtract(self.target_position,pos)
         reward, done = self.reward(delta)
         if(action == 0):
-            reward = reward + 2
+            reward = reward + 1
         self.state = np.append(mins,pos)
         self.state = np.append(self.state,delta)
         return np.copy(self.state), reward, done, {}
@@ -85,7 +85,7 @@ class AutonomousRobot(gym.Env):
             if self.robot.collision(obs):
                 return -100, True
         dis = np.linalg.norm(delta)
-        reward = -1 * dis/600
+        reward = -1 * dis/1000
         return reward, False
 
     def _reset(self):

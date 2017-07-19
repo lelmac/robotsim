@@ -6,12 +6,14 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 import time
+from matplotlib import pyplot as plt
 import gym_robot
 import signal
 import sys
 
 
-EPISODES = 1000
+EPISODES = 50000
+SAVE_EP = 1000
 
 
 class DQNAgent:
@@ -20,9 +22,9 @@ class DQNAgent:
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
-        self.epsilon = 0.8  # exploration rate
+        self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.997
+        self.epsilon_decay = 0.9994
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -69,7 +71,6 @@ if __name__ == "__main__":
     env = gym.make('AutonomousRobot-v0')
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
-    print(action_size)
     agent = DQNAgent(state_size, action_size)
     try:
         agent.load("./save/v2.h5")
@@ -84,7 +85,9 @@ if __name__ == "__main__":
             agent.save("./save/v2.h5")
         sys.exit(0)
     signal.signal(signal.SIGINT, soft_exit)
-
+    reward_history = []
+    mvg_avg_history = []
+    time_history = []
     batch_size = 64
     mv_avg = 0
     for e in range(EPISODES):
@@ -94,12 +97,12 @@ if __name__ == "__main__":
 
         #print(str(e) + "/" + str(EPISODES))
         for time in range(1000):
-            if(e % 25 == 0):
-                env.render()
+            #if(e % 25 == 0):
+            #    env.render()
             action = agent.act(state)
-            # print(action)
+            
             next_state, reward, done, _ = env.step(action)
-            # print(reward)
+            
             sum_reward += reward
             next_state = np.reshape(next_state, [1, state_size])
             agent.remember(state, action, reward, next_state, done)
@@ -108,8 +111,34 @@ if __name__ == "__main__":
                 mv_avg = (mv_avg * (e) + sum_reward) / (e + 1)
                 print("episode: {}/{}, score: {}, running average: {}, time: {} e: {:.2}"
                       .format(e, EPISODES, sum_reward, mv_avg, time, agent.epsilon))
+                reward_history.append(sum_reward)
+                mvg_avg_history.append(mv_avg)
+                time_history.append(time)
                 break
         if len(agent.memory) > batch_size:       
             agent.replay(batch_size)
-    
-    agent.save("./save/v2.h5")
+        if(e % SAVE_EP == 0 and e != 0):
+            name = "./save/v2" + str(e)  + ".h5" 
+            agent.save(name)
+            plt.plot(xrange(SAVE_EP),reward_history[e-SAVE_EP:e])
+            plt.plot(xrange(SAVE_EP),mvg_avg_history[e-SAVE_EP:e])
+            plt.legend(['Reward', 'Average Reward'], loc='upper left')
+            plt.savefig("diagrams/" + str(e) + "reward.pdf")
+            plt.clf()
+            plt.plot(xrange(SAVE_EP),reward_history[e-SAVE_EP:e])
+            plt.plot(xrange(SAVE_EP),time_history[e-SAVE_EP:e])
+            plt.legend(['Reward', 'Time'], loc='upper left')
+            plt.savefig("diagrams/" + str(e) + "time.pdf")
+            plt.clf()
+            mv_avg = 0
+        
+    #Endresultat
+    plt.plot(xrange(EPISODES),reward_history)
+    plt.plot(xrange(EPISODES),mvg_avg_history)
+    plt.legend(['Reward', 'Average Reward'], loc='upper left')
+    plt.savefig("diagrams/reward.pdf")
+    plt.clf()
+    plt.plot(xrange(EPISODES),reward_history)
+    plt.plot(xrange(EPISODES),time_history)
+    plt.legend(['Reward', 'Time'], loc='upper left')
+    plt.savefig("diagrams/time.pdf")
