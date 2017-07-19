@@ -72,7 +72,7 @@ if __name__ == "__main__":
     print(action_size)
     agent = DQNAgent(state_size, action_size)
     try:
-        agent.load("./save/robotGPU.h5")
+        agent.load("./save/g3d1h-100.h5")
     except IOError:
         pass
     done = False
