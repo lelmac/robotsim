@@ -66,24 +66,27 @@ class AutonomousRobot(gym.Env):
             self.robot.turn_left()
         if(action == 2):
             self.robot.turn_right()
-        reward, done = self.reward()
-        if(action == 0):
-            reward = reward + 2
+        
         mins, p, p = self.robot.usSensors(self.obstacles)
         mins = np.array(mins)
         pos = np.array(self.robot.get_postion())
         delta = np.subtract(self.target_position,pos)
+        reward, done = self.reward(delta)
+        if(action == 0):
+            reward = reward + 2
         self.state = np.append(mins,pos)
         self.state = np.append(self.state,delta)
         return np.copy(self.state), reward, done, {}
 
-    def reward(self):
+    def reward(self,delta):
         if(self.robot.pointInRobot(self.target_position)):
             return 200, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
                 return -100, True
-        return -1, False
+        dis = np.linalg.norm(delta)
+        reward = -1 * dis/600
+        return reward, False
 
     def _reset(self):
         self.state = np.zeros(7,)
