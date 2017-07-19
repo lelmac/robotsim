@@ -66,13 +66,13 @@ class DQNAgent:
 
 
 if __name__ == "__main__":    
-    env = gym.make('robot-v0')
+    env = gym.make('AutonomousRobot-v0')
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
     print(action_size)
     agent = DQNAgent(state_size, action_size)
     try:
-        agent.load("./save/g3d1h-100.h5")
+        agent.load("./save/v2.h5")
     except IOError:
         pass
     done = False
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         print("Abort Training \n")
         var = raw_input("Want to save the model? y/n")
         if var == 'y':
-            agent.save("./save/robotGPU.h5")
+            agent.save("./save/v2.h5")
         sys.exit(0)
     signal.signal(signal.SIGINT, soft_exit)
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
         #print(str(e) + "/" + str(EPISODES))
         for time in range(1000):
-            if(e % 1 == 0):
+            if(e % 25 == 0):
                 env.render()
             action = agent.act(state)
             # print(action)
@@ -113,4 +113,4 @@ if __name__ == "__main__":
             
             agent.replay(batch_size)
         # if e % 10 == 0:
-    agent.save("./save/robot.h5")
+    agent.save("./save/v2.h5")

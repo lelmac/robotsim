@@ -1,7 +1,9 @@
 import numpy as np
-from shapely.geometry import Polygon, LineString
+from shapely.geometry import Polygon, LineString, Point
 from shapely import speedups
-
+if speedups.available:
+    speedups.enable()
+    print("Speedups enabled")
 
 class Obstacle(object):
     def __init__(self, position, width, height):
@@ -9,9 +11,6 @@ class Obstacle(object):
         self.width = width
         self.angle = 0
         self.height = height
-        if speedups.available:
-            speedups.enable()
-            print("Collision Speedups enabled")
 
     def move(self, x, y):
         self.position[0] = x
@@ -109,7 +108,7 @@ class Robot(Obstacle):
             return ret
 
     def usSensors(self, objectList):
-        us_angles = [-20, 0, 20]
+        us_angles = [-30, 0, 30]
         mins = [0, 0, 0]
         interections = [0, 0, 0]
         start = [0, 0, 0]
@@ -142,6 +141,14 @@ class Robot(Obstacle):
                     minimum = length
                     min_intersection = np.array(intersection[index])
         return minimum, min_intersection, posRot
+
+    def pointInRobot(self,point):
+        robot_corners = self.get_rotated_corners()
+        p1 = Polygon(robot_corners)
+        p = Point(point[0],point[1])
+        if p1.contains(p):
+            return True
+        return False
 
     def get_segments(self, corners):
         corners = np.array(corners)
