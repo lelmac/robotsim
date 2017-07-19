@@ -20,9 +20,9 @@ class DQNAgent:
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
-        self.epsilon = 1.0  # exploration rate
+        self.epsilon = 0.8  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.997
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         sys.exit(0)
     signal.signal(signal.SIGINT, soft_exit)
 
-    batch_size = 32
+    batch_size = 64
     mv_avg = 0
     for e in range(EPISODES):
         state = env.reset()
@@ -109,8 +109,7 @@ if __name__ == "__main__":
                 print("episode: {}/{}, score: {}, running average: {}, time: {} e: {:.2}"
                       .format(e, EPISODES, sum_reward, mv_avg, time, agent.epsilon))
                 break
-        if len(agent.memory) > batch_size:
-            
+        if len(agent.memory) > batch_size:       
             agent.replay(batch_size)
-        # if e % 10 == 0:
+    
     agent.save("./save/v2.h5")
