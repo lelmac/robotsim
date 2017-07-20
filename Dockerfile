@@ -29,6 +29,7 @@ RUN apt-get update \
     git \
     vim \
     gcc \
+    python-tk \
     xpra \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \

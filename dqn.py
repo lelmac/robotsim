@@ -6,6 +6,8 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 import time
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import gym_robot
 import signal
