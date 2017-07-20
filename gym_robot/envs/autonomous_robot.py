@@ -81,10 +81,10 @@ class AutonomousRobot(gym.Env):
 
     def reward(self, delta):
         if(self.robot.pointInRobot(self.target_position)):
-            return 200, True
+            return 500, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
-                return -100, True
+                return -200, True
         dis = np.linalg.norm(delta)
         reward = -1 * dis / 100
         return reward, False

@@ -92,7 +92,6 @@ if __name__ == "__main__":
     avg_history = []
     time_history = []
     batch_size = 64
-    mv_avg = 0
     for e in range(EPISODES):
         state = env.reset()
         state = np.reshape(state, [1, state_size])
@@ -111,7 +110,6 @@ if __name__ == "__main__":
             agent.remember(state, action, reward, next_state, done)
             state = next_state
             if done:
-                #mv_avg = (mv_avg * (e) + sum_reward) / (e + 1)
                 print("episode: {}/{}, score: {}, time: {} e: {:.2}"
                       .format(e, EPISODES, sum_reward,time, agent.epsilon))
                 if(e % AVG_REW == 0 and e != 0):
@@ -125,7 +123,7 @@ if __name__ == "__main__":
             agent.replay(batch_size)
         if(e % SAVE_EP == 0 and e != 0):
             name = "./save/v3" + str(e)  + ".h5" 
-            #agent.save(name)
+            agent.save(name)
             plt.plot(range(0,e,AVG_REW),avg_history[0:e/AVG_REW])
             plt.legend(['Average Reward'], loc='upper left')
             plt.savefig("diagrams/" + str(e) + "reward.pdf")
