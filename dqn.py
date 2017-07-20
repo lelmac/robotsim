@@ -27,8 +27,8 @@ class DQNAgent:
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.learning_rate = 0.001
+        self.epsilon_decay = 0.9994
+        self.learning_rate = 0.01
         self.model = self._build_model()
 
     def _build_model(self):
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     reward_history = []
     avg_history = []
     time_history = []
-    batch_size = 64
+    batch_size = 42
     for e in range(EPISODES):
         state = env.reset()
         state = np.reshape(state, [1, state_size])
