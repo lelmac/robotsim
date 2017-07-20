@@ -21,7 +21,7 @@ class AutonomousRobot(gym.Env):
         self.robot_width = 50
         self.robot_height = 30
         self.obstacles = []
-        self.target_position = [500,100]
+        self.target_position = [500, 100]
         wall_size = 5
         x = randint(100, 500)
         y = randint(100, 500)
@@ -38,11 +38,12 @@ class AutonomousRobot(gym.Env):
         topWall = Obstacle([self.width / 2, self.height],
                            self.width, wall_size)
         botWall = Obstacle([self.width / 2, 0], self.width, wall_size)
-        self.obstacles = [self.obstacle,self.obstacle2, leftWall, rightWall, topWall, botWall]
+        self.obstacles = [self.obstacle, self.obstacle2,
+                          leftWall, rightWall, topWall, botWall]
         self.walls = [leftWall, rightWall, topWall, botWall]
         self.speed = 0.5
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
-        #Sensors + Position + Delta to Target
+        # Sensors + Position + Delta to Target
         # (s1,s2,s3,x,y,dx,dy)
         self.observation_space = spaces.Box(
             low=0, high=600, shape=(7,))
@@ -66,34 +67,37 @@ class AutonomousRobot(gym.Env):
             self.robot.turn_left()
         if(action == 2):
             self.robot.turn_right()
-        
+
         mins, p, p = self.robot.usSensors(self.obstacles)
         mins = np.array(mins)
         pos = np.array(self.robot.get_postion())
-        delta = np.subtract(self.target_position,pos)
+        delta = np.subtract(self.target_position, pos)
         reward, done = self.reward(delta)
         if(action == 0):
             reward = reward + 1
-        self.state = np.append(mins,pos)
-        self.state = np.append(self.state,delta)
+        self.state = np.append(mins, pos)
+        self.state = np.append(self.state, delta)
         return np.copy(self.state), reward, done, {}
 
-    def reward(self,delta):
+    def reward(self, delta):
         if(self.robot.pointInRobot(self.target_position)):
             return 200, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
                 return -100, True
         dis = np.linalg.norm(delta)
-        reward = -1 * dis/1000
+        reward = -1 * dis / 100
         return reward, False
 
     def _reset(self):
         self.state = np.zeros(7,)
         # x
-        x = randint(100, 500)
-        y = randint(100, 500)
-        a = randint(0, 360)
+        x = 200
+        y = 300
+        a = 0
+        #x = randint(100, 500)
+        #y = randint(100, 500)
+        #a = randint(0, 360)
         self.robot = Robot([x, y], 40, 25)
         self.robot.angle = a
         for obs in self.obstacles:
@@ -161,8 +165,8 @@ class AutonomousRobot(gym.Env):
 
             min, points, pos = self.robot.usSensors(self.obstacles)
 
-
-            self.targettrans.set_translation(self.target_position[0],self.target_position[1])
+            self.targettrans.set_translation(
+                self.target_position[0], self.target_position[1])
 
             x, y = self.obstacle.get_postion(
             )[0], self.obstacle.get_postion()[1]
@@ -170,7 +174,7 @@ class AutonomousRobot(gym.Env):
             x, y = self.obstacle2.get_postion(
             )[0], self.obstacle2.get_postion()[1]
             self.obtrans2.set_translation(x, y)
-            self.obtrans2.set_rotation(self.obstacle2.angle * np.pi / 180) 
+            self.obtrans2.set_rotation(self.obstacle2.angle * np.pi / 180)
             x = self.robot.get_postion()[0]
             y = self.robot.get_postion()[1]
             rot = self.robot.get_rotation()
