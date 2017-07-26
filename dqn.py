@@ -14,8 +14,8 @@ import signal
 import sys
 
 
-EPISODES = 10000
-SAVE_EP = 100
+EPISODES = 50000
+SAVE_EP = 500
 AVG_REW = 25
 
 
@@ -27,7 +27,7 @@ class DQNAgent:
         self.gamma = 1.0    # discount rate
         self.epsilon = 0.95  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.99
+        self.epsilon_decay = 0.9995
         self.learning_rate = 0.01
         self.model = self._build_model()
 
@@ -35,6 +35,7 @@ class DQNAgent:
         # Neural Net for Deep-Q learning Model
         model = Sequential()
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
+        model.add(Dense(24, activation='relu'))
         model.add(Dense(24, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
