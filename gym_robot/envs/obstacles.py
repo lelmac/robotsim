@@ -90,6 +90,14 @@ class Robot(Obstacle):
         self.position[0] += np.sin(np.pi / 2 -
                                    self.angle * np.pi / 180) * self.speed
         self.position[1] += np.sin(self.angle * np.pi / 180) * self.speed
+    
+    def move_forward_speed(self,speed):
+        self.position[0] += np.sin(np.pi / 2 -
+                                   self.angle * np.pi / 180) * speed
+        self.position[1] += np.sin(self.angle * np.pi / 180) * speed
+
+    def turn(self,value):
+        self.angle += value /2
 
     def turn_left(self):
         self.angle += self.turn_speed

@@ -15,8 +15,8 @@ import sys
 
 
 EPISODES = 10000
-SAVE_EP = 1000
-AVG_REW = 50
+SAVE_EP = 100
+AVG_REW = 25
 
 
 class DQNAgent:
@@ -24,10 +24,10 @@ class DQNAgent:
         self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
-        self.gamma = 0.95    # discount rate
-        self.epsilon = 0.1  # exploration rate
+        self.gamma = 1.0    # discount rate
+        self.epsilon = 0.95  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.9994
+        self.epsilon_decay = 0.99
         self.learning_rate = 0.01
         self.model = self._build_model()
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     action_size = env.action_space.n
     agent = DQNAgent(state_size, action_size)
     try:
-        agent.load("./save/v31000.h5")
+        agent.load("./save/v3.h5")
     except IOError:
         pass
     done = False
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     reward_history = []
     avg_history = []
     time_history = []
-    batch_size = 42
+    batch_size = 80
     for e in range(EPISODES):
         state = env.reset()
         state = np.reshape(state, [1, state_size])
@@ -99,12 +99,13 @@ if __name__ == "__main__":
 
         #print(str(e) + "/" + str(EPISODES))
         for time in range(1000):
-            if(e % 1 == 0):
-                env.render()
+            
             action = agent.act(state)
             
             next_state, reward, done, _ = env.step(action)
-            
+            if(e % 50 == 0):
+                env.render()
+                print(str(reward) + " | " + str(next_state))
             sum_reward += reward
             next_state = np.reshape(next_state, [1, state_size])
             agent.remember(state, action, reward, next_state, done)
