@@ -9,8 +9,9 @@ Q = np.zeros([env.observation_space.n,env.action_space.n])
 
 lr = .8
 discount = .95
-num_episodes = 100
-
+num_episodes = 400
+epsilon = 1.0
+epsilon_decay = 0.99
 
 iterations_per_episode = []
 rewards = []
@@ -18,8 +19,10 @@ for episode in range(num_episodes):
     #Reset environment
     s = env.reset()
     rAll = 0
-    d = False
+    done = False
     iteration = 0
+
+
 
     while iteration < 1000:
         if episode % 25 == 0:
@@ -27,7 +30,7 @@ for episode in range(num_episodes):
         
         iteration+=1
         #Choose an action by greedily
-        a = np.argmax(Q[s,:] + np.random.randn(1,env.action_space.n)*(1./(episode+1)))
+        a = np.argmax(Q[s,:] + np.random.randn(1,env.action_space.n)*epsilon)
         #Get new state and reward from environment
         s1,r,done,_ = env.step(a)
 
@@ -37,8 +40,9 @@ for episode in range(num_episodes):
         #update State
         s = s1
         if done == True:
-            print("episode: {}/{}, score: {}, time: {} "
-                      .format(episode, num_episodes, rAll,iteration))
+            epsilon *= epsilon_decay 
+            print("episode: {}/{}, score: {}, time: {}, e: {:.2} "
+                      .format(episode, num_episodes, rAll,iteration,epsilon))
             break
 
     rewards.append(rAll)
@@ -55,5 +59,5 @@ axarr[0].set_ylabel("Reward")
 axarr[1].plot(range(num_episodes),iterations_per_episode)
 axarr[1].set_ylabel("Iterationen")
 plt.xlabel('Episoden')
-plt.savefig("diagrams/rewardQLearning.pdf")
+plt.savefig("diagrams/rewardQ2Learning.pdf")
 plt.show()

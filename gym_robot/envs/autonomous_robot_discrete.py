@@ -43,10 +43,8 @@ class AutonomousRobotD(gym.Env):
         self.walls = [leftWall, rightWall, topWall, botWall]
         self.speed = 0.5
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
-        # Sensors + Position + Delta to Target
-        # (s1,s2,s3,x,y,dx,dy)
-        self.observation_space = spaces.Discrete(26*3)
 
+        self.observation_space = spaces.Discrete(26 *3)
         self.viewer = None
         self.state = None
 
@@ -70,9 +68,8 @@ class AutonomousRobotD(gym.Env):
         mins, p, p = self.robot.usSensors(self.obstacles)
         mins = np.array(mins)
         mins = np.abs(np.ceil((mins-5)/10.0))
-        #pos = np.array(self.robot.get_postion())
-        #delta = np.subtract(self.target_position, pos)
         reward, done = self.reward()
+
         self.state = int(np.sum(mins))
         if action == 0:
             reward += 2
@@ -84,7 +81,7 @@ class AutonomousRobotD(gym.Env):
         for obs in self.obstacles:
             if self.robot.collision(obs):
                 return -700, True
-        #dis = np.linalg.norm(delta)
+        dis = np.linalg.norm(delta)
         #reward = -1 * np.e**(dis / 1000)
         reward = -1 
         return reward, False
@@ -95,9 +92,9 @@ class AutonomousRobotD(gym.Env):
         x = 200
         y = 300
         a = 0
-        #x = randint(100, 500)
-        #y = randint(100, 500)
-        #a = randint(0, 360)
+        x = randint(100, 500)
+        y = randint(100, 500)
+        a = randint(0, 360)
         self.robot = Robot([x, y], 40, 25)
         self.robot.angle = a
         for obs in self.obstacles:

@@ -14,18 +14,19 @@ import signal
 import sys
 
 
-EPISODES = 50000
-SAVE_EP = 50
+EPISODES = 10000
+SAVE_EP = 100
 AVG_REW = 25
 
+ENV_NAME = 'AutonomousRobot-v0'
 
 class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=50000)
         self.gamma = 0.9    # discount rate
-        self.epsilon = 0.95  # exploration rate
+        self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.998
         self.learning_rate = 0.001
@@ -36,6 +37,7 @@ class DQNAgent:
         model = Sequential()
         model.add(Dense(16, input_dim=self.state_size, activation='relu'))
         model.add(Dense(16, activation='relu'))
+        model.add(Dense(8, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -71,7 +73,7 @@ class DQNAgent:
 
 
 if __name__ == "__main__":    
-    env = gym.make('AutonomousRobot-v0')
+    env = gym.make(ENV_NAME)
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
     agent = DQNAgent(state_size, action_size)

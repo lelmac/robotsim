@@ -46,7 +46,7 @@ class AutonomousRobot(gym.Env):
         # Sensors + Position + Delta to Target
         # (s1,s2,s3,x,y,dx,dy)
         self.observation_space = spaces.Box(
-            low=-600, high=600, shape=(4,))
+            low=0, high=255, shape=(3,))
 
         self.viewer = None
         self.state = None
@@ -73,7 +73,8 @@ class AutonomousRobot(gym.Env):
         #pos = np.array(self.robot.get_postion())
         #delta = np.subtract(self.target_position, pos)
         reward, done = self.reward()
-        self.state = np.append(mins, self.robot.angle)
+        self.state = mins
+        #self.state = np.append(mins, self.robot.angle)
         if action == 0:
             reward += 2
         return np.copy(self.state), reward, done, {}
@@ -90,7 +91,7 @@ class AutonomousRobot(gym.Env):
         return reward, False
 
     def _reset(self):
-        self.state = np.zeros(4,)
+        self.state = np.zeros(3,)
         # x
         x = 200
         y = 300
