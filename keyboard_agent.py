@@ -8,7 +8,7 @@ import gym_robot
 # Test yourself as a learning agent! Pass environment name as a command-line argument.
 #
 
-env = gym.make('AutonomousRobot-v0' if len(sys.argv)<2 else sys.argv[1])
+env = gym.make('AutonomousRobot-v2' if len(sys.argv)<2 else sys.argv[1])
 
 if not hasattr(env.action_space, 'n'):
     raise Exception('Keyboard agent only supports discrete action spaces')

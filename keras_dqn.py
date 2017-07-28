@@ -10,7 +10,7 @@ from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger
 
-ENV_NAME = 'AutonomousRobot-v0'
+ENV_NAME = 'MountainCar-v0'
 
 
 # Get the environment and extract the number of actions.
@@ -21,11 +21,11 @@ nb_actions = env.action_space.n
 # Next, we build a very simple model.
 model = Sequential()
 model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-model.add(Dense(32))
+model.add(Dense(10))
 model.add(Activation('relu'))
-model.add(Dense(32))
+model.add(Dense(10))
 model.add(Activation('relu'))
-model.add(Dense(32))
+model.add(Dense(10))
 model.add(Activation('relu'))
 model.add(Dense(nb_actions))
 model.add(Activation('linear'))

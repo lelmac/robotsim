@@ -12,7 +12,7 @@ import time
 from random import randint
 
 
-class AutonomousRobot(gym.Env):
+class AutonomousRobotD(gym.Env):
     metadata = {'render.modes': ['human'], 'video.frames_per_second': 1}
 
     def __init__(self):
@@ -45,8 +45,7 @@ class AutonomousRobot(gym.Env):
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
         # Sensors + Position + Delta to Target
         # (s1,s2,s3,x,y,dx,dy)
-        self.observation_space = spaces.Box(
-            low=-600, high=600, shape=(4,))
+        self.observation_space = spaces.Discrete(26*3)
 
         self.viewer = None
         self.state = None
@@ -70,13 +69,14 @@ class AutonomousRobot(gym.Env):
 
         mins, p, p = self.robot.usSensors(self.obstacles)
         mins = np.array(mins)
+        mins = np.abs(np.ceil((mins-5)/10.0))
         #pos = np.array(self.robot.get_postion())
         #delta = np.subtract(self.target_position, pos)
         reward, done = self.reward()
-        self.state = np.append(mins, self.robot.angle)
+        self.state = int(np.sum(mins))
         if action == 0:
             reward += 2
-        return np.copy(self.state), reward, done, {}
+        return self.state, reward, done, {}
 
     def reward(self, delta=0):
         #if(self.robot.pointInRobot(self.target_position)):
@@ -90,7 +90,7 @@ class AutonomousRobot(gym.Env):
         return reward, False
 
     def _reset(self):
-        self.state = np.zeros(4,)
+        self.state = np.random.randint(0,self.observation_space.n)
         # x
         x = 200
         y = 300
@@ -104,7 +104,7 @@ class AutonomousRobot(gym.Env):
             if self.robot.collision(obs):
                 self._reset()
                 break
-        return np.copy(self.state)
+        return self.state
 
     def _render(self, mode='human', close=False):
         if renderingAvailable:

@@ -116,7 +116,7 @@ class Robot(Obstacle):
             return ret
 
     def usSensors(self, objectList):
-        us_angles = [-30, 0, 30]
+        us_angles = [-20, 0, 20]
         mins = [0, 0, 0]
         interections = [0, 0, 0]
         start = [0, 0, 0]

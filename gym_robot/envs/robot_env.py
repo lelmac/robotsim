@@ -73,7 +73,7 @@ class RobotEnv(gym.Env):
     def reward(self):
         for obs in self.obstacles:
             if self.robot.collision(obs):
-                return -100, True
+                return -500, True
         return -1, False
 
     def _reset(self):
