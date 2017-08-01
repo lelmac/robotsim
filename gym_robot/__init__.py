@@ -21,3 +21,8 @@ register(
     entry_point='gym_robot.envs:AutonomousRobotD',
     timestep_limit=1000,
 )
+register(
+    id='AutonomousRobot-v3',
+    entry_point='gym_robot.envs:AutonomousRobotTarget',
+    timestep_limit=1000,
+)

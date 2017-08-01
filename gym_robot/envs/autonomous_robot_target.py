@@ -12,7 +12,7 @@ import time
 from random import randint
 
 
-class AutonomousRobot(gym.Env):
+class AutonomousRobotTarget(gym.Env):
     metadata = {'render.modes': ['human'], 'video.frames_per_second': 1}
 
     def __init__(self):
@@ -29,8 +29,8 @@ class AutonomousRobot(gym.Env):
        # self.robot = Robot([self.width / 2, self.height / 2],
        #                    self.robot_width, self.robot_height)
 
-        self.obstacle = Obstacle([200, 75], 300, 50)
-        self.obstacle2 = Obstacle([100, 200], 100, 75)
+        self.obstacle = Obstacle([500, 300], 50, 50)
+        self.obstacle2 = Obstacle([100, 200], 35, 35)
         self.obstacle2.angle = 45
         leftWall = Obstacle([0, self.height / 2], wall_size, self.height)
         rightWall = Obstacle([self.width, self.height / 2],
@@ -44,9 +44,9 @@ class AutonomousRobot(gym.Env):
         self.speed = 0.5
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
         # Sensors + Position + Delta to Target
-        # (s1,s2,s3,x,y,dx,dy)
+        # (s1,s2,s3,x,y,dx,dy,angle)
         self.observation_space = spaces.Box(
-            low=0, high=255, shape=(3,))
+            low=-600, high=600, shape=(8,))
 
         self.viewer = None
         self.state = None
@@ -70,37 +70,34 @@ class AutonomousRobot(gym.Env):
 
         mins, p, p = self.robot.usSensors(self.obstacles)
         mins = np.array(mins)
-        #pos = np.array(self.robot.get_postion())
-        #delta = np.subtract(self.target_position, pos)
-        reward, done = self.reward()
-        self.state = mins
-        #self.state = np.append(mins, self.robot.angle)
+        pos = np.array(self.robot.get_postion())
+        delta = np.subtract(self.target_position, pos)
+        reward, done = self.reward(delta)
+        self.state = np.append(mins, pos)
+        self.state = np.append(self.state, delta)
+        self.state = np.append(self.state, self.robot.angle)
         if action == 0:
             reward += 2
         return np.copy(self.state), reward, done, {}
 
     def reward(self, delta=0):
-        #if(self.robot.pointInRobot(self.target_position)):
-        #    return 800, True
+        if(self.robot.pointInRobot(self.target_position)):
+            return 1000, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
-                return -700, True
-        #dis = np.linalg.norm(delta)
-        #reward = -1 * np.e**(dis / 1000)
-        reward = -1 
+                return -1500, True
+        dis = np.linalg.norm(delta)
+        reward = -1 * np.e**(dis / 1000)
         return reward, False
 
     def _reset(self):
-        self.state = np.zeros(3,)
+        self.state = np.zeros(8,)
         # x
         #x = 200
         #y = 300
-        x = 50
-        y = 25
-        a = 0
-        #x = randint(100, 500)
-        #y = randint(100, 500)
-        #a = randint(0, 360)
+        x = randint(100, 500)
+        y = randint(100, 500)
+        a = randint(0, 360)
         self.robot = Robot([x, y], 40, 25)
         self.robot.angle = a
         for obs in self.obstacles:

@@ -9,7 +9,7 @@ Q = np.zeros((26,4,3))
 print(Q)
 lr = .8
 discount = .95
-num_episodes = 120
+num_episodes = 70
 epsilon = 1.0
 epsilon_decay = 0.95
 
@@ -52,6 +52,9 @@ print "Score over time: " +  str(sum(rewards)/num_episodes)
 print "Final Q-Table Values"
 print Q
 
+file = open('qTable.txt', 'w+')
+file.write(Q)
+file.close()
 #Plot that stuff
 f, axarr = plt.subplots(2,sharex=True)
 axarr[0].plot(range(num_episodes),rewards)
