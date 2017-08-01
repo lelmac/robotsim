@@ -5,13 +5,13 @@ from matplotlib import pyplot as plt
 
 env = gym.make('AutonomousRobot-v2')
 
-Q = np.zeros([env.observation_space.n,env.action_space.n])
-
+Q = np.zeros((26,4,3))
+print(Q)
 lr = .8
 discount = .95
-num_episodes = 400
+num_episodes = 120
 epsilon = 1.0
-epsilon_decay = 0.99
+epsilon_decay = 0.95
 
 iterations_per_episode = []
 rewards = []
@@ -30,12 +30,12 @@ for episode in range(num_episodes):
         
         iteration+=1
         #Choose an action by greedily
-        a = np.argmax(Q[s,:] + np.random.randn(1,env.action_space.n)*epsilon)
+        a = np.argmax(Q[s[0],s[1],:] + np.random.randn(1,env.action_space.n)*epsilon)
         #Get new state and reward from environment
         s1,r,done,_ = env.step(a)
 
         #Update Q-Table with new knowledge
-        Q[s,a] = Q[s,a] + lr*(r + discount*np.max(Q[s1,:]) - Q[s,a])
+        Q[s[0],s[1],a] = Q[s[0],s[1],a] + lr*(r + discount*np.max(Q[s1[0],s1[1],:]) - Q[s[0],s[1],a])
         rAll += r
         #update State
         s = s1

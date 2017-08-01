@@ -44,7 +44,7 @@ class AutonomousRobotD(gym.Env):
         self.speed = 0.5
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
 
-        self.observation_space = spaces.Discrete(26 *3)
+        self.observation_space = spaces.Discrete(26 * 4 *3)
         self.viewer = None
         self.state = None
 
@@ -65,12 +65,15 @@ class AutonomousRobotD(gym.Env):
         if(action == 2):
             self.robot.turn_right()
 
-        mins, p, p = self.robot.usSensors(self.obstacles)
-        mins = np.array(mins)
-        mins = np.abs(np.ceil((mins-5)/10.0))
+        infrared = self.robot.infraredSensor(self.obstacles)
+
+
+
+        min, p, p = self.robot.singleUsSensors(self.obstacles)
+        mins = np.abs(np.ceil((min-5)/10.0))
         reward, done = self.reward()
 
-        self.state = int(np.sum(mins))
+        self.state = [int(mins),infrared]
         if action == 0:
             reward += 2
         return self.state, reward, done, {}
@@ -87,14 +90,14 @@ class AutonomousRobotD(gym.Env):
         return reward, False
 
     def _reset(self):
-        self.state = np.random.randint(0,self.observation_space.n)
+        self.state = [np.random.randint(0,25),np.random.randint(1,4)]
         # x
         x = 200
         y = 300
         a = 0
-        x = randint(100, 500)
-        y = randint(100, 500)
-        a = randint(0, 360)
+        #x = randint(100, 500)
+        #y = randint(100, 500)
+        #a = randint(0, 360)
         self.robot = Robot([x, y], 40, 25)
         self.robot.angle = a
         for obs in self.obstacles:
@@ -123,6 +126,7 @@ class AutonomousRobotD(gym.Env):
                 start = rendering.make_circle(3)
                 obs = rendering.FilledPolygon(self.obstacle.get_drawing())
                 obs2 = rendering.FilledPolygon(self.obstacle2.get_drawing())
+
                 for wall in self.walls:
                     draw = rendering.FilledPolygon(
                         wall.get_drawing_static_position())
@@ -182,6 +186,7 @@ class AutonomousRobotD(gym.Env):
 
             self.robottrans.set_translation(x, y)
             self.robottrans.set_rotation(rot * np.pi / 180)
+
             return self.viewer.render()
 
     def create_environment(self):
