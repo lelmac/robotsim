@@ -119,9 +119,9 @@ class Robot(Obstacle):
             return ret
 
     def infraredSensor(self, objectList):
-        mid = Polygon([[0,5], [0,5], [50, 10], [50, -10]])
-        left = Polygon([[0, -10], [0, -5], [50, -10], [40, -20]])
-        right = Polygon([[0, 10], [0, 5], [50, 10], [40, 20]])
+        mid = Polygon([[0,-5], [0,5], [60, 15], [60, -15]])
+        left = Polygon([[0, -15], [0, -5], [60, -15], [50, -30]])
+        right = Polygon([[0, 15], [0, 5], [60, 15], [50, 30]])
 
         angleInRad = (self.angle) * np.pi / 180
         dirVec = np.array([np.cos(angleInRad), np.sin(angleInRad)])
