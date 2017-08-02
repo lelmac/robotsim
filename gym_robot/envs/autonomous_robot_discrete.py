@@ -92,12 +92,12 @@ class AutonomousRobotD(gym.Env):
     def _reset(self):
         self.state = [np.random.randint(0,25),np.random.randint(1,4)]
         # x
-        x = 200
-        y = 300
-        a = 0
-        #x = randint(100, 500)
-        #y = randint(100, 500)
-        #a = randint(0, 360)
+        #x = 200
+        #y = 300
+        #a = 0
+        x = randint(100, 500)
+        y = randint(100, 500)
+        a = randint(0, 360)
         self.robot = Robot([x, y], 40, 25)
         self.robot.angle = a
         for obs in self.obstacles:
