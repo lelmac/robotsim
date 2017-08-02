@@ -1,9 +1,12 @@
 import numpy as np
 from shapely.geometry import Polygon, LineString, Point
+from shapely import affinity
 from shapely import speedups
+from matplotlib import pyplot as plt
 if speedups.available:
     speedups.enable()
     print("Speedups enabled")
+
 
 class Obstacle(object):
     def __init__(self, position, width, height):
@@ -90,14 +93,14 @@ class Robot(Obstacle):
         self.position[0] += np.sin(np.pi / 2 -
                                    self.angle * np.pi / 180) * self.speed
         self.position[1] += np.sin(self.angle * np.pi / 180) * self.speed
-    
-    def move_forward_speed(self,speed):
+
+    def move_forward_speed(self, speed):
         self.position[0] += np.sin(np.pi / 2 -
                                    self.angle * np.pi / 180) * speed
         self.position[1] += np.sin(self.angle * np.pi / 180) * speed
 
-    def turn(self,value):
-        self.angle += value /2
+    def turn(self, value):
+        self.angle += value / 2
 
     def turn_left(self):
         self.angle += self.turn_speed
@@ -114,6 +117,49 @@ class Robot(Obstacle):
             ret = p1.intersects(p2)
 
             return ret
+
+    def infraredSensor(self, objectList):
+        mid = Polygon([[0,-5], [0,5], [60, 15], [60, -15]])
+        left = Polygon([[0, -15], [0, -5], [60, -15], [50, -30]])
+        right = Polygon([[0, 15], [0, 5], [60, 15], [50, 30]])
+
+        angleInRad = (self.angle) * np.pi / 180
+        dirVec = np.array([np.cos(angleInRad), np.sin(angleInRad)])
+        posRot = np.add(dirVec * self.width / 2, self.get_position())
+
+        zones = [mid, left, right]
+        translated_zones = []
+
+        for z in zones:
+            z = affinity.translate(z, posRot[0], posRot[1])
+            z = affinity.rotate(z, self.angle,posRot)
+            translated_zones.append(z)
+            c = self.get_rotated_corners()
+            o = z.exterior.coords.xy
+            #plt.plot(*zip(*c))
+            #plt.scatter(o[0],o[1])
+            #plt.show()
+
+        for o in objectList:
+            o = Polygon(o.get_rotated_corners())
+            
+            if translated_zones[0].intersects(o):
+                return 0#1695  # Center
+            if translated_zones[1].intersects(o):
+                return 2#3215  # Left
+            if translated_zones[2].intersects(o):
+                return 1#2086  # Right
+        return 3#4000  # Clear
+
+    def singleUsSensors(self, objectList):
+        us_angles = 0
+        mins = 0
+        interections = 0
+        start = 0
+
+        mins, interections, start = self.rayCast(
+            objectList, us_angles)
+        return mins, interections, start
 
     def usSensors(self, objectList):
         us_angles = [-20, 0, 20]
@@ -150,10 +196,10 @@ class Robot(Obstacle):
                     min_intersection = np.array(intersection[index])
         return minimum, min_intersection, posRot
 
-    def pointInRobot(self,point):
+    def pointInRobot(self, point):
         robot_corners = self.get_rotated_corners()
         p1 = Polygon(robot_corners)
-        p = Point(point[0],point[1])
+        p = Point(point[0], point[1])
         if p1.contains(p):
             return True
         return False

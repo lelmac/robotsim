@@ -108,6 +108,12 @@ class TestRobotMethods(unittest.TestCase):
         self.assertTrue(p1.intersects(p2))
         #self.assertFalse(linalg_helper.separating_axis_theorem(v1,v2))
 
+    def test_infrared_one(self):
+        self.robot = Robot([300, 300], 50, 50)
+        self.robot.angle = 0
+        obstacle = Obstacle([300, 400], 50, 50)
+        s = self.robot.infraredSensor([obstacle])
+        self.assertEqual(s,4000)
 
 if __name__ == '__main__':
     unittest.main()

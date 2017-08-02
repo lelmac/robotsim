@@ -10,7 +10,7 @@ from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger
 
-ENV_NAME = 'AutonomousRobot-v0'
+ENV_NAME = 'AutonomousRobot-v3'
 
 
 # Get the environment and extract the number of actions.
@@ -21,11 +21,11 @@ nb_actions = env.action_space.n
 # Next, we build a very simple model.
 model = Sequential()
 model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-model.add(Dense(16))
+model.add(Dense(64))
 model.add(Activation('relu'))
-model.add(Dense(16))
+model.add(Dense(64))
 model.add(Activation('relu'))
-model.add(Dense(8))
+model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dense(nb_actions))
 model.add(Activation('linear'))
@@ -41,9 +41,9 @@ dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmu
              
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 date = str(datetime.now())
-log_filename = 'dqn_{}_{}_log.json'.format(ENV_NAME,date)
+log_filename = './logs/dqn_{}_{}_log.json'.format(ENV_NAME,date)
 callbacks = [FileLogger(log_filename, interval=25)]
-#dqn.load_weights('dqn_{}_weights.h5f'.format(ENV_NAME))  
+#dqn.load_weights("dqn_v0_12reward_weights.h5f")  
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.

@@ -12,7 +12,7 @@ import time
 from random import randint
 
 
-class AutonomousRobotD(gym.Env):
+class AutonomousRobotTarget(gym.Env):
     metadata = {'render.modes': ['human'], 'video.frames_per_second': 1}
 
     def __init__(self):
@@ -43,8 +43,11 @@ class AutonomousRobotD(gym.Env):
         self.walls = [leftWall, rightWall, topWall, botWall]
         self.speed = 0.5
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
+        # Sensors + Position + Delta to Target
+        # (s1,s2,s3,x,y,dx,dy,angle)
+        self.observation_space = spaces.Box(
+            low=-600, high=600, shape=(8,))
 
-        self.observation_space = spaces.Discrete(26 * 4 *3)
         self.viewer = None
         self.state = None
 
@@ -65,36 +68,33 @@ class AutonomousRobotD(gym.Env):
         if(action == 2):
             self.robot.turn_right()
 
-        infrared = self.robot.infraredSensor(self.obstacles)
-
-
-
-        min, p, p = self.robot.singleUsSensors(self.obstacles)
-        mins = np.abs(np.ceil((min-5)/10.0))
-        reward, done = self.reward()
-
-        self.state = [int(mins),infrared]
+        mins, p, p = self.robot.usSensors(self.obstacles)
+        mins = np.array(mins)
+        pos = np.array(self.robot.get_postion())
+        delta = np.subtract(self.target_position, pos)
+        reward, done = self.reward(delta)
+        self.state = np.append(mins, pos)
+        self.state = np.append(self.state, delta)
+        self.state = np.append(self.state, self.robot.angle)
         if action == 0:
             reward += 2
-        return self.state, reward, done, {}
+        return np.copy(self.state), reward, done, {}
 
     def reward(self, delta=0):
-        #if(self.robot.pointInRobot(self.target_position)):
-        #    return 800, True
+        if(self.robot.pointInRobot(self.target_position)):
+            return 1000, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
-                return -700, True
+                return -1500, True
         dis = np.linalg.norm(delta)
-        #reward = -1 * np.e**(dis / 1000)
-        reward = -1 
+        reward = -1 * np.e**(dis / 1000)
         return reward, False
 
     def _reset(self):
-        self.state = [np.random.randint(0,25),np.random.randint(1,4)]
+        self.state = np.zeros(8,)
         # x
         #x = 200
         #y = 300
-        #a = 0
         x = randint(100, 500)
         y = randint(100, 500)
         a = randint(0, 360)
@@ -104,7 +104,7 @@ class AutonomousRobotD(gym.Env):
             if self.robot.collision(obs):
                 self._reset()
                 break
-        return self.state
+        return np.copy(self.state)
 
     def _render(self, mode='human', close=False):
         if renderingAvailable:
@@ -126,7 +126,6 @@ class AutonomousRobotD(gym.Env):
                 start = rendering.make_circle(3)
                 obs = rendering.FilledPolygon(self.obstacle.get_drawing())
                 obs2 = rendering.FilledPolygon(self.obstacle2.get_drawing())
-
                 for wall in self.walls:
                     draw = rendering.FilledPolygon(
                         wall.get_drawing_static_position())
@@ -186,7 +185,6 @@ class AutonomousRobotD(gym.Env):
 
             self.robottrans.set_translation(x, y)
             self.robottrans.set_rotation(rot * np.pi / 180)
-
             return self.viewer.render()
 
     def create_environment(self):
