@@ -41,7 +41,7 @@ class AutonomousRobotTarget(gym.Env):
         self.obstacles = [self.obstacle, self.obstacle2,
             leftWall, rightWall, topWall, botWall]
         self.walls = [leftWall, rightWall, topWall, botWall]
-        self.speed = 0.5
+
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
         # Sensors + Position + Delta to Target
         # (s1,s2,s3,x,y,dx,dy,angle)
@@ -85,7 +85,7 @@ class AutonomousRobotTarget(gym.Env):
             return 1000, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
-                return -1500, True
+                return -2000, True
         dis = np.linalg.norm(delta)
         reward = -1 * np.e**(dis / 1000)
         return reward, False

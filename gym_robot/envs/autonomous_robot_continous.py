@@ -47,7 +47,7 @@ class AutonomousRobotC(gym.Env):
         # Sensors + Position + Delta to Target
         # (s1,s2,s3,x,y,dx,dy)
         self.observation_space = spaces.Box(
-            low=0, high=600, shape=(7,))
+            low=0, high=255, shape=(3,))
 
         self.viewer = None
         self.state = None
@@ -59,40 +59,53 @@ class AutonomousRobotC(gym.Env):
         self.display = display
 
     def _step(self, action):
-        assert self.action_space.contains(
-            action), "%r (%s) invalid" % (action, type(action))
-
+        #assert self.action_space.contains(
+        #    action), "%r (%s) invalid" % (action, type(action))
+       # print(action)
+        # if action[0] >= 3:
+        #     action[0] = 3
+        # if action[0] <= -3:
+        #     action[0] = -3
+        # if action[1] >= 3:
+        #     action[1] = 3
+        # if action[1] <= -3:
+        #     action[1] = -3
+        action = action * 2
         self.robot.move_forward_speed(action[0])
         self.robot.turn(action[1])
-
+        
         mins, p, p = self.robot.usSensors(self.obstacles)
         mins = np.array(mins)
         pos = np.array(self.robot.get_postion())
         delta = np.subtract(self.target_position, pos)
-        reward, done = self.reward(delta)
-        self.state = np.append(mins, pos)
-        self.state = np.append(self.state, delta)
+        reward, done = self.reward(action,delta)
+        self.state = mins
+        #self.state = np.append(mins, pos)
+        #self.state = np.append(self.state, delta)
+        reward += action[0]
+        reward -= np.abs(action[1])
         return np.copy(self.state), reward, done, {}
 
-    def reward(self, delta):
-        if(self.robot.pointInRobot(self.target_position)):
-            return 500, True
+    def reward(self, action, delta):
+        #if(self.robot.pointInRobot(self.target_position)):
+        #    return 500, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
                 return -500, True
-        dis = np.linalg.norm(delta)
-        reward = -1 * np.e**(dis / 2000)
+        #dis = np.linalg.norm(delta)
+        #reward = -1 * np.e**(dis / 2000)
+        reward = action[0] #- np.abs(action[1])/4
         return reward, False
 
     def _reset(self):
-        self.state = np.zeros(7,)
+        self.state = np.zeros(3,)
         # x
-        x = 200
-        y = 300
-        a = 0
-        #x = randint(100, 500)
-        #y = randint(100, 500)
-        #a = randint(0, 360)
+        #x = 200
+        #y = 300
+        #a = 0
+        x = randint(100, 500)
+        y = randint(100, 500)
+        a = randint(0, 360)
         self.robot = Robot([x, y], 40, 25)
         self.robot.angle = a
         for obs in self.obstacles:

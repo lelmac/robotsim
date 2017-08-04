@@ -29,8 +29,8 @@ class AutonomousRobot(gym.Env):
        # self.robot = Robot([self.width / 2, self.height / 2],
        #                    self.robot_width, self.robot_height)
 
-        self.obstacle = Obstacle([200, 75], 300, 50)
-        self.obstacle2 = Obstacle([100, 200], 100, 75)
+        self.obstacle = Obstacle([500, 300], 50, 50)
+        self.obstacle2 = Obstacle([100, 200], 35, 35)
         self.obstacle2.angle = 45
         leftWall = Obstacle([0, self.height / 2], wall_size, self.height)
         rightWall = Obstacle([self.width, self.height / 2],
@@ -95,12 +95,10 @@ class AutonomousRobot(gym.Env):
         # x
         #x = 200
         #y = 300
-        x = 50
-        y = 25
-        a = 0
-        #x = randint(100, 500)
-        #y = randint(100, 500)
-        #a = randint(0, 360)
+
+        x = randint(100, 500)
+        y = randint(100, 500)
+        a = randint(0, 360)
         self.robot = Robot([x, y], 40, 25)
         self.robot.angle = a
         for obs in self.obstacles:
