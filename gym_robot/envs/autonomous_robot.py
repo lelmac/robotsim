@@ -46,7 +46,7 @@ class AutonomousRobot(gym.Env):
         # Sensors + Position + Delta to Target
         # (s1,s2,s3,x,y,dx,dy)
         self.observation_space = spaces.Box(
-            low=0, high=255, shape=(3,))
+            low=0, high=255, shape=(2,))
 
         self.viewer = None
         self.state = None
@@ -67,14 +67,12 @@ class AutonomousRobot(gym.Env):
             self.robot.turn_left()
         if(action == 2):
             self.robot.turn_right()
-
-        mins, p, p = self.robot.usSensors(self.obstacles)
-        mins = np.array(mins)
-        #pos = np.array(self.robot.get_postion())
-        #delta = np.subtract(self.target_position, pos)
         reward, done = self.reward()
-        self.state = mins
-        #self.state = np.append(mins, self.robot.angle)
+        
+        min, p, p = self.robot.singleUsSensors(self.obstacles)
+        infrared = self.robot.infraredSensor(self.obstacles)
+        
+        self.state = [min,infrared]
         if action == 0:
             reward += 2
         return np.copy(self.state), reward, done, {}
@@ -91,7 +89,7 @@ class AutonomousRobot(gym.Env):
         return reward, False
 
     def _reset(self):
-        self.state = np.zeros(3,)
+        self.state = np.zeros(2,)
         # x
         #x = 200
         #y = 300
