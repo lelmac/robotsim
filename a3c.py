@@ -15,13 +15,15 @@ import gym
 import time
 import random
 import threading
-
+import gym_robot
 from keras.models import *
 from keras.layers import *
 from keras import backend as K
-
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 #-- constants
-ENV = 'CartPole-v0'
+ENV = 'AutonomousRobot-v0'
 
 RUN_TIME = 30
 THREADS = 8
@@ -66,10 +68,11 @@ class Brain:
     def _build_model(self):
 
         l_input = Input(batch_shape=(None, NUM_STATE))
-        l_dense = Dense(16, activation='relu')(l_input)
-
-        out_actions = Dense(NUM_ACTIONS, activation='softmax')(l_dense)
-        out_value = Dense(1, activation='linear')(l_dense)
+        l_dense = Dense(8, activation='relu')(l_input)
+        l_dense2 = Dense(8, activation='relu')(l_dense)
+        l_dense3 = Dense(8, activation='relu')(l_dense2)
+        out_actions = Dense(NUM_ACTIONS, activation='softmax')(l_dense3)
+        out_value = Dense(1, activation='linear')(l_dense3)
 
         model = Model(inputs=[l_input], outputs=[out_actions, out_value])
         model._make_predict_function()  # have to initialize before threading
@@ -158,7 +161,11 @@ class Brain:
         with self.default_graph.as_default():
             p, v = self.model.predict(s)
             return v
+    def load(self, name):
+        self.model.load_weights(name)
 
+    def save(self, name):
+        self.model.save_weights(name)
 
 #---------
 frames = 0
@@ -244,6 +251,7 @@ class Environment(threading.Thread):
         self.render = render
         self.env = gym.make(ENV)
         self.agent = Agent(eps_start, eps_end, eps_steps)
+        self.rewards = []
 
     def runEpisode(self):
         s = self.env.reset()
@@ -268,7 +276,7 @@ class Environment(threading.Thread):
 
             if done or self.stop_signal:
                 break
-
+        self.rewards.append(R)
         print("Total R:", R)
 
     def run(self):
@@ -277,6 +285,9 @@ class Environment(threading.Thread):
 
     def stop(self):
         self.stop_signal = True
+
+    def get_reward(self):
+        return self.rewards
 
 #---------
 
@@ -323,6 +334,17 @@ for o in opts:
     o.stop()
 for o in opts:
     o.join()
+i = 1
+for e in envs:
+    i += 1
+    r = e.get_reward()
+    plt.plot(xrange(len(r)),r)
+    plt.legend([str(i)], loc='upper left')
+plt.xlabel("Episode")
+plt.ylabel("Reward")
+plt.savefig("diagrams/a3creward.pdf")
+
+brain.save("./save/a3c.h5")
 
 print("Training finished")
 env_test.run()
