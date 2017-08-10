@@ -19,7 +19,9 @@ import gym_robot
 from keras.models import *
 from keras.layers import *
 from keras import backend as K
-
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 #-- constants
 ENV = 'AutonomousRobot-v0'
 
@@ -159,7 +161,11 @@ class Brain:
         with self.default_graph.as_default():
             p, v = self.model.predict(s)
             return v
+    def load(self, name):
+        self.model.load_weights(name)
 
+    def save(self, name):
+        self.model.save_weights(name)
 
 #---------
 frames = 0
@@ -245,6 +251,7 @@ class Environment(threading.Thread):
         self.render = render
         self.env = gym.make(ENV)
         self.agent = Agent(eps_start, eps_end, eps_steps)
+        self.rewards = []
 
     def runEpisode(self):
         s = self.env.reset()
@@ -269,7 +276,7 @@ class Environment(threading.Thread):
 
             if done or self.stop_signal:
                 break
-
+        self.rewards.append(R)
         print("Total R:", R)
 
     def run(self):
@@ -278,6 +285,9 @@ class Environment(threading.Thread):
 
     def stop(self):
         self.stop_signal = True
+
+    def get_reward(self):
+        return self.rewards
 
 #---------
 
@@ -324,6 +334,17 @@ for o in opts:
     o.stop()
 for o in opts:
     o.join()
+i = 1
+for e in envs:
+    i += 1
+    r = e.get_reward()
+    plt.plot(xrange(len(r)),r)
+    plt.legend([str(i)], loc='upper left')
+plt.xlabel("Episode")
+plt.ylabel("Reward")
+plt.savefig("diagrams/a3creward.pdf")
+
+brain.save("./save/a3c.h5")
 
 print("Training finished")
 env_test.run()
