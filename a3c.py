@@ -15,13 +15,13 @@ import gym
 import time
 import random
 import threading
-
+import gym_robot
 from keras.models import *
 from keras.layers import *
 from keras import backend as K
 
 #-- constants
-ENV = 'CartPole-v0'
+ENV = 'AutonomousRobot-v0'
 
 RUN_TIME = 30
 THREADS = 8
@@ -66,10 +66,11 @@ class Brain:
     def _build_model(self):
 
         l_input = Input(batch_shape=(None, NUM_STATE))
-        l_dense = Dense(16, activation='relu')(l_input)
-
-        out_actions = Dense(NUM_ACTIONS, activation='softmax')(l_dense)
-        out_value = Dense(1, activation='linear')(l_dense)
+        l_dense = Dense(8, activation='relu')(l_input)
+        l_dense2 = Dense(8, activation='relu')(l_dense)
+        l_dense3 = Dense(8, activation='relu')(l_dense2)
+        out_actions = Dense(NUM_ACTIONS, activation='softmax')(l_dense3)
+        out_value = Dense(1, activation='linear')(l_dense3)
 
         model = Model(inputs=[l_input], outputs=[out_actions, out_value])
         model._make_predict_function()  # have to initialize before threading
