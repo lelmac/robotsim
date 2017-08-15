@@ -11,6 +11,11 @@
 import numpy as np
 import tensorflow as tf
 
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+set_session(tf.Session(config=config))
+
 import gym
 import time
 import random
@@ -25,7 +30,7 @@ from matplotlib import pyplot as plt
 #-- constants
 ENV = 'AutonomousRobot-v0'
 
-RUN_TIME = 30
+RUN_TIME = 60*60*12
 THREADS = 8
 OPTIMIZERS = 2
 THREAD_DELAY = 0.001
@@ -35,12 +40,12 @@ GAMMA = 0.99
 N_STEP_RETURN = 8
 GAMMA_N = GAMMA ** N_STEP_RETURN
 
-EPS_START = 0.4
-EPS_STOP = .15
-EPS_STEPS = 75000
+EPS_START = 0.9
+EPS_STOP = .1
+EPS_STEPS = 100000
 
 MIN_BATCH = 32
-LEARNING_RATE = 5e-3
+LEARNING_RATE = 1e-3
 
 LOSS_V = .5			# v loss coefficient
 LOSS_ENTROPY = .01 	# entropy coefficient
@@ -68,9 +73,9 @@ class Brain:
     def _build_model(self):
 
         l_input = Input(batch_shape=(None, NUM_STATE))
-        l_dense = Dense(8, activation='relu')(l_input)
-        l_dense2 = Dense(8, activation='relu')(l_dense)
-        l_dense3 = Dense(8, activation='relu')(l_dense2)
+        l_dense = Dense(16, activation='relu')(l_input)
+        l_dense2 = Dense(16, activation='relu')(l_dense)
+        l_dense3 = Dense(16, activation='relu')(l_dense2)
         out_actions = Dense(NUM_ACTIONS, activation='softmax')(l_dense3)
         out_value = Dense(1, activation='linear')(l_dense3)
 
