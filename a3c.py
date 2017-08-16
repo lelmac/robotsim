@@ -42,7 +42,7 @@ GAMMA_N = GAMMA ** N_STEP_RETURN
 
 EPS_START = 0.9
 EPS_STOP = .1
-EPS_STEPS = 100000
+EPS_STEPS = 500000
 
 MIN_BATCH = 32
 LEARNING_RATE = 1e-3
@@ -312,7 +312,7 @@ class Optimizer(threading.Thread):
 
 
 #-- main
-env_test = Environment(render=False, eps_start=0., eps_end=0.)
+env_test = Environment(render=False, eps_start=0.001, eps_end=0.)
 NUM_STATE = env_test.env.observation_space.shape[0]
 NUM_ACTIONS = env_test.env.action_space.n
 NONE_STATE = np.zeros(NUM_STATE)
