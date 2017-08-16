@@ -41,7 +41,7 @@ def visualize_log(filename, figsize=None, output=None):
 
     # Get value keys. The x axis is shared and is the number of episodes.
     keys = sorted(list(set(data.keys()).difference(set(['episode']))))
-    keys = [keys[1],keys[2],keys[4]]
+    keys = [keys[1],keys[2],keys[3]]
     if figsize is None:
         figsize = (15., 5. * len(keys))
     f, axarr = plt.subplots(len(keys), sharex=True, figsize=figsize)
