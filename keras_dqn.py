@@ -11,6 +11,12 @@ from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger,TestLogger
 
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+set_session(tf.Session(config=config))
+
 ENV_NAME = 'AutonomousRobot-v3'
 
 
