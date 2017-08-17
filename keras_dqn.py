@@ -28,13 +28,13 @@ nb_actions = env.action_space.n
 # Next, we build a very simple model.
 model = Sequential()
 model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-model.add(Dense(32))
+model.add(Dense(16))
 model.add(Activation('relu'))
-model.add(Dense(32))
+model.add(Dense(16))
 model.add(Activation('relu'))
-model.add(Dense(32))
+model.add(Dense(16))
 model.add(Activation('relu'))
-model.add(Dense(32))
+model.add(Dense(16))
 model.add(Activation('relu'))
 model.add(Dense(nb_actions))
 model.add(Activation('linear'))
@@ -48,14 +48,14 @@ policy = BoltzmannQPolicy()
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=100,
                target_model_update=1e-3, policy=policy)
              
-dqn.compile(Adam(lr=1e-4), metrics=['mse'])
+dqn.compile(Adam(lr=1e-3), metrics=['mse'])
 date = str(datetime.now())
 log_filename = './logs/dqn_{}_{}_log.json'.format(ENV_NAME,date)
 #log_filename = './logs/dqn_{}_test_log.json'.format(ENV_NAME)
 callbacks = [FileLogger(log_filename, interval=25)]
 csv_logger = CSVLogger('test.log')
 #testCall = [TestLogger(FileLogger(log_filename, interval=25))]
-#dqn.load_weights("dqn_AutonomousRobot-v3_2017-08-16 07:45:57.867966_weights.h5f")  
+#dqn.load_weights("dqn_AutonomousRobot-v3_2017-08-17 08:37:59.309955_weights.h5f")  
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
