@@ -61,7 +61,7 @@ class AutonomousRobotC(gym.Env):
     def _step(self, action):
         #assert self.action_space.contains(
         #    action), "%r (%s) invalid" % (action, type(action))
-        action = action * 2
+        action = action * 3
         self.robot.move_forward_speed(action[0])
         self.robot.turn(action[1])
         reward, done = self.reward(action)
@@ -82,7 +82,7 @@ class AutonomousRobotC(gym.Env):
                 return -500, True
         #dis = np.linalg.norm(delta)
         #reward = -1 * np.e**(dis / 2000)
-        reward = -1 + action[0] - np.abs(action[1]/4)
+        reward = -2 + action[0] - np.abs(action[1]/2)
         return reward, False
 
     def _reset(self):

@@ -85,9 +85,9 @@ class AutonomousRobotTarget(gym.Env):
             return 1000, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
-                return -2000, True
+                return -1000, True
         dis = np.linalg.norm(delta)
-        reward = -1 * np.e**(dis / 1000)
+        reward = -1 - (dis / 1000)
         return reward, False
 
     def _reset(self):

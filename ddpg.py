@@ -60,14 +60,14 @@ agent.compile(Adam(lr=.001), metrics=['mse'])
 date = str(datetime.now())
 log_filename = './logs/ddpg_{}_{}_log.json'.format(ENV_NAME,date)
 callbacks = [FileLogger(log_filename, interval=25)]
-#agent.load_weights('ddpg_{}_random_pos_weights.h5f'.format(ENV_NAME))
+agent.load_weights('ddpg_{}_random_pos_weights.h5f'.format(ENV_NAME))
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
-agent.fit(env, nb_steps=1000000, visualize=False, verbose=2, nb_max_episode_steps=1000,callbacks=callbacks)
+#agent.fit(env, nb_steps=1000000, visualize=False, verbose=2, nb_max_episode_steps=1000,callbacks=callbacks)
 
 # After training is done, we save the final weights.
-agent.save_weights('ddpg_{}_random_pos_weights.h5f'.format(ENV_NAME), overwrite=True)
+#agent.save_weights('ddpg_{}_random_pos_weights.h5f'.format(ENV_NAME), overwrite=True)
 
 # Finally, evaluate our algorithm for 5 episodes.
 agent.test(env, nb_episodes=10, visualize=True, nb_max_episode_steps=1000)
