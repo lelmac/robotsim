@@ -261,11 +261,11 @@ class Environment(threading.Thread):
     def runEpisode(self):
         start = time.time()
         s = self.env.reset()
-
+        iterations = 0
         R = 0
         while True:
             time.sleep(THREAD_DELAY)  # yield
-
+            iterations += 1
             if self.render:
                 self.env.render()
 
@@ -284,7 +284,7 @@ class Environment(threading.Thread):
                 break
         self.rewards.append(R)
         end = time.time()
-        print("Reward: {}, time: {} ".format(R, end - start))
+        print("Reward: {}, time: {} s, Iterations:  ".format(R, end - start, iterations))
 
     def run(self):
         while not self.stop_signal:
