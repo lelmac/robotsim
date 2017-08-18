@@ -259,6 +259,7 @@ class Environment(threading.Thread):
         self.rewards = []
 
     def runEpisode(self):
+        start = time.time()
         s = self.env.reset()
 
         R = 0
@@ -282,7 +283,8 @@ class Environment(threading.Thread):
             if done or self.stop_signal:
                 break
         self.rewards.append(R)
-        print("Total R:", R)
+        end = time.time()
+        print("Reward: {}, time: {} ".format(R, end - start))
 
     def run(self):
         while not self.stop_signal:
