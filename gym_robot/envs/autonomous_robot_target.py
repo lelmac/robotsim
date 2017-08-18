@@ -46,7 +46,7 @@ class AutonomousRobotTarget(gym.Env):
         # Sensors + Position + Delta to Target
         # (s1,s2,s3,x,y,dx,dy,angle)
         self.observation_space = spaces.Box(
-            low=-600, high=600, shape=(8,))
+            low=-2, high=2, shape=(7,))
 
         self.viewer = None
         self.state = None
@@ -73,11 +73,18 @@ class AutonomousRobotTarget(gym.Env):
         pos = np.array(self.robot.get_postion())
         delta = np.subtract(self.target_position, pos)
         reward, done = self.reward(delta)
+
+        #Normierung
+        mins = mins/255
+        pos = pos /600
+        delta = delta / 848
+        #anlge = self.robot.angle / 180
         self.state = np.append(mins, pos)
         self.state = np.append(self.state, delta)
-        self.state = np.append(self.state, self.robot.angle)
+        print(self.state)
+        #self.state = np.append(self.state, self.robot.angle)
         if action == 0:
-            reward += 2
+            reward += 1
         return np.copy(self.state), reward, done, {}
 
     def reward(self, delta=0):
@@ -85,13 +92,13 @@ class AutonomousRobotTarget(gym.Env):
             return 1000, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
-                return -1000, True
+                return -1500, True
         dis = np.linalg.norm(delta)
-        reward = -1 - (dis / 1000)
+        reward = -0.5 - (dis / 1000)
         return reward, False
 
     def _reset(self):
-        self.state = np.zeros(8,)
+        self.state = np.zeros(7,)
         # x
         #x = 200
         #y = 300

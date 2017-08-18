@@ -55,7 +55,7 @@ log_filename = './logs/dqn_{}_{}_log.json'.format(ENV_NAME,date)
 callbacks = [FileLogger(log_filename, interval=25)]
 csv_logger = CSVLogger('test.log')
 #testCall = [TestLogger(FileLogger(log_filename, interval=25))]
-#dqn.load_weights("dqn_AutonomousRobot-v3_2017-08-17 08:37:59.309955_weights.h5f")  
+#dqn.load_weights("dqn_AutonomousRobot-v3_2017-08-17 18:43:23.361367_weights.h5f")  
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
