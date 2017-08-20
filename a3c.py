@@ -284,7 +284,7 @@ class Environment(threading.Thread):
                 break
         self.rewards.append(R)
         end = time.time()
-        print("Reward: {}, time: {} s, Iterations:  ".format(R, end - start, iterations))
+        print("Reward: {}, time: {} s, Iterations: {}".format(R, end - start, iterations))
 
     def run(self):
         while not self.stop_signal:
