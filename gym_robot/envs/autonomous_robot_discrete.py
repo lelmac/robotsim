@@ -3,6 +3,7 @@ from gym import spaces
 from obstacles import Robot, Obstacle
 import numpy as np
 import random
+# headless machines
 try:
     from gym.envs.classic_control import rendering
     renderingAvailable = True
@@ -39,12 +40,12 @@ class AutonomousRobotD(gym.Env):
                            self.width, wall_size)
         botWall = Obstacle([self.width / 2, 0], self.width, wall_size)
         self.obstacles = [self.obstacle, self.obstacle2,
-            leftWall, rightWall, topWall, botWall]
+                          leftWall, rightWall, topWall, botWall]
         self.walls = [leftWall, rightWall, topWall, botWall]
         self.speed = 0.5
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
 
-        self.observation_space = spaces.Discrete(26 * 4 *3)
+        self.observation_space = spaces.Discrete(26 * 4 * 3)
         self.viewer = None
         self.state = None
 
@@ -65,36 +66,36 @@ class AutonomousRobotD(gym.Env):
         if(action == 2):
             self.robot.turn_right()
 
+        # one infrared + one ultrasonic
         infrared = self.robot.infraredSensor(self.obstacles)
 
-
-
         min, p, p = self.robot.singleUsSensors(self.obstacles)
-        mins = np.abs(np.ceil((min-5)/10.0))
+        mins = np.abs(np.ceil((min - 5) / 10.0))
         reward, done = self.reward()
 
-        self.state = [int(mins),infrared]
+        self.state = [int(mins), infrared]
         if action == 0:
             reward += 2
         return self.state, reward, done, {}
 
     def reward(self, delta=0):
-        #if(self.robot.pointInRobot(self.target_position)):
+        # if(self.robot.pointInRobot(self.target_position)):
         #    return 800, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
                 return -700, True
         dis = np.linalg.norm(delta)
         #reward = -1 * np.e**(dis / 1000)
-        reward = -1 
+        reward = -1
         return reward, False
 
     def _reset(self):
-        self.state = [np.random.randint(0,25),np.random.randint(1,4)]
+        self.state = [np.random.randint(0, 25), np.random.randint(1, 4)]
         # x
         #x = 200
         #y = 300
         #a = 0
+        # random position each episode
         x = randint(100, 500)
         y = randint(100, 500)
         a = randint(0, 360)

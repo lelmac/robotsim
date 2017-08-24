@@ -1,4 +1,4 @@
-# OpenGym CartPole-v0 with A3C on GPU
+
 # -----------------------------------
 #
 # A3C implementation with GPU optimizer threads.
@@ -6,11 +6,11 @@
 # Made as part of blog series Let's make an A3C, available at
 # https://jaromiru.com/2017/02/16/lets-make-an-a3c-theory/
 #
-# author: Jaromir Janisch, 2017
 
 import numpy as np
 import tensorflow as tf
 
+#Only allocate memory as needed
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
@@ -24,8 +24,11 @@ import gym_robot
 from keras.models import *
 from keras.layers import *
 from keras import backend as K
+
 import matplotlib
+#needed for running on headless machines
 matplotlib.use('Agg')
+
 from matplotlib import pyplot as plt
 #-- constants
 ENV = 'AutonomousRobot-v0'
@@ -50,7 +53,7 @@ LEARNING_RATE = 1e-3
 LOSS_V = .5			# v loss coefficient
 LOSS_ENTROPY = .01 	# entropy coefficient
 
-#---------
+#---------smooth Function
 def smooth(x,window_len=25,window='flat'):
     if x.ndim != 1:
         raise ValueError, "smooth only accepts 1 dimension arrays."
@@ -365,9 +368,9 @@ for o in opts:
     o.stop()
 for o in opts:
     o.join()
-i = 1
+
+#Visualize
 for e in envs:
-    i += 1
     r = e.get_reward()
     r = smooth(np.array(r))
     plt.plot(xrange(len(r)),r)

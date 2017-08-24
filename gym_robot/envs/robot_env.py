@@ -3,6 +3,7 @@ from gym import spaces
 from obstacles import Robot, Obstacle
 import numpy as np
 import random
+# for headless machines
 try:
     from gym.envs.classic_control import rendering
     renderingAvailable = True
@@ -22,12 +23,13 @@ class RobotEnv(gym.Env):
         self.robot_height = 30
         self.obstacles = []
         wall_size = 5
+
+        # init robot
         x = randint(100, 500)
         y = randint(100, 500)
         self.robot = Robot([x, y], 40, 25)
-       # self.robot = Robot([self.width / 2, self.height / 2],
-       #                    self.robot_width, self.robot_height)
 
+        # init obstacles and walls
         self.obstacle = Obstacle([500, 300], 50, 50)
         leftWall = Obstacle([0, self.height / 2], wall_size, self.height)
         rightWall = Obstacle([self.width, self.height / 2],
@@ -37,11 +39,13 @@ class RobotEnv(gym.Env):
         botWall = Obstacle([self.width / 2, 0], self.width, wall_size)
         self.obstacles = [self.obstacle, leftWall, rightWall, topWall, botWall]
         self.walls = [leftWall, rightWall, topWall, botWall]
+
+        # set contants
         self.speed = 0.5
         self.pad_width = 1
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
         self.observation_space = spaces.Box(
-            low=0, high=600, shape=(3,))
+            low=0, high=255, shape=(3,))
 
         self.viewer = None
         self.state = None
@@ -69,12 +73,14 @@ class RobotEnv(gym.Env):
         self.state = np.array(mins)
         # print(self.state)
         return np.copy(self.state), reward, done, {}
+    # reward function
 
     def reward(self):
         for obs in self.obstacles:
             if self.robot.collision(obs):
                 return -500, True
         return -1, False
+    # reset function
 
     def _reset(self):
         self.state = np.zeros(3,)
@@ -101,7 +107,7 @@ class RobotEnv(gym.Env):
             if self.viewer is None:
                 self.viewer = rendering.Viewer(
                     self.width, self.height, display=self.display)
-
+                # draw all the stuff (could be optimized)
                 robot = rendering.FilledPolygon(self.robot.get_drawing())
                 c1 = rendering.make_circle(2)
                 c2 = rendering.make_circle(2)

@@ -39,7 +39,7 @@ class AutonomousRobot(gym.Env):
                            self.width, wall_size)
         botWall = Obstacle([self.width / 2, 0], self.width, wall_size)
         self.obstacles = [self.obstacle, self.obstacle2,
-            leftWall, rightWall, topWall, botWall]
+                          leftWall, rightWall, topWall, botWall]
         self.walls = [leftWall, rightWall, topWall, botWall]
         self.speed = 0.5
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
@@ -68,24 +68,24 @@ class AutonomousRobot(gym.Env):
         if(action == 2):
             self.robot.turn_right()
         reward, done = self.reward()
-        
+
         min, p, p = self.robot.singleUsSensors(self.obstacles)
         infrared = self.robot.infraredSensor(self.obstacles)
-        
-        self.state = [min,infrared]
+
+        self.state = [min, infrared]
         if action == 0:
             reward += 2
         return np.copy(self.state), reward, done, {}
 
     def reward(self, delta=0):
-        #if(self.robot.pointInRobot(self.target_position)):
+        # if(self.robot.pointInRobot(self.target_position)):
         #    return 800, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
                 return -700, True
         #dis = np.linalg.norm(delta)
         #reward = -1 * np.e**(dis / 1000)
-        reward = -1 
+        reward = -1
         return reward, False
 
     def _reset(self):

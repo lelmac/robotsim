@@ -13,12 +13,19 @@ import gym_robot
 import signal
 import sys
 
+# Only allocate memory as needed
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+set_session(tf.Session(config=config))
 
 EPISODES = 10000
 SAVE_EP = 100
 AVG_REW = 25
 
 ENV_NAME = 'AutonomousRobot-v0'
+
 
 class DQNAgent:
     def __init__(self, state_size, action_size):
@@ -72,7 +79,7 @@ class DQNAgent:
         self.model.save_weights(name)
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     env = gym.make(ENV_NAME)
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
@@ -101,9 +108,9 @@ if __name__ == "__main__":
 
         #print(str(e) + "/" + str(EPISODES))
         for time in range(1000):
-            
+
             action = agent.act(state)
-            
+
             next_state, reward, done, _ = env.step(action)
             if(e % 50 == 0):
                 env.render()
@@ -114,37 +121,37 @@ if __name__ == "__main__":
             state = next_state
             if done:
                 print("episode: {}/{}, score: {}, time: {} e: {:.2}"
-                      .format(e, EPISODES, sum_reward,time, agent.epsilon))
+                      .format(e, EPISODES, sum_reward, time, agent.epsilon))
                 if(e % AVG_REW == 0 and e != 0):
-                    avg = np.average(reward_history[e-AVG_REW:e])
+                    avg = np.average(reward_history[e - AVG_REW:e])
                     avg_history.append(avg)
-                
+
                 reward_history.append(sum_reward)
                 time_history.append(time)
                 break
-        if len(agent.memory) > batch_size:       
+        if len(agent.memory) > batch_size:
             agent.replay(batch_size)
         if(e % SAVE_EP == 0 and e != 0):
-            name = "./save/v3" + str(e)  + ".h5" 
+            name = "./save/v3" + str(e) + ".h5"
             agent.save(name)
-            plt.plot(range(0,e,AVG_REW),avg_history[0:e/AVG_REW])
+            plt.plot(range(0, e, AVG_REW), avg_history[0:e / AVG_REW])
             plt.legend(['Average Reward'], loc='upper left')
             plt.savefig("diagrams/" + str(e) + "reward.pdf")
             plt.clf()
-            plt.plot(xrange(SAVE_EP),reward_history[e-SAVE_EP:e])
-            plt.plot(xrange(SAVE_EP),time_history[e-SAVE_EP:e])
+            plt.plot(xrange(SAVE_EP), reward_history[e - SAVE_EP:e])
+            plt.plot(xrange(SAVE_EP), time_history[e - SAVE_EP:e])
             plt.legend(['Reward', 'Time'], loc='upper left')
             plt.savefig("diagrams/" + str(e) + "time.pdf")
             plt.clf()
             mv_avg = 0
-        
-    #Endresultat
-    plt.plot(xrange(EPISODES),reward_history)
-    plt.plot(xrange(0,EPISODES,AVG_REW),avg_history)
+
+    # Endresultat
+    plt.plot(xrange(EPISODES), reward_history)
+    plt.plot(xrange(0, EPISODES, AVG_REW), avg_history)
     plt.legend(['Reward', 'Average Reward'], loc='upper left')
     plt.savefig("diagrams/reward.pdf")
     plt.clf()
-    plt.plot(xrange(EPISODES),reward_history)
-    plt.plot(xrange(EPISODES),time_history)
+    plt.plot(xrange(EPISODES), reward_history)
+    plt.plot(xrange(EPISODES), time_history)
     plt.legend(['Reward', 'Time'], loc='upper left')
     plt.savefig("diagrams/time.pdf")

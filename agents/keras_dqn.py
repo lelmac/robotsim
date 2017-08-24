@@ -9,12 +9,13 @@ import gym_robot
 from rl.agents.dqn import DQNAgent
 from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
-from rl.callbacks import FileLogger,TestLogger
+from rl.callbacks import FileLogger, TestLogger
 
+# Only allocate memory as needed
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
-config.gpu_options.allow_growth=True
+config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
 
 ENV_NAME = 'AutonomousRobot-v3'
@@ -25,7 +26,7 @@ env = gym.make(ENV_NAME)
 
 nb_actions = env.action_space.n
 
-# Next, we build a very simple model.
+# model
 model = Sequential()
 model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
 model.add(Dense(16))
@@ -40,29 +41,30 @@ model.add(Dense(nb_actions))
 model.add(Activation('linear'))
 print(model.summary())
 
-# Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
-# even the metrics!
+# Agent
 memory = SequentialMemory(limit=2000000, window_length=1)
 policy = BoltzmannQPolicy()
 
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=100,
                target_model_update=1e-3, policy=policy)
-             
+
 dqn.compile(Adam(lr=1e-3), metrics=['mse'])
+
+# logging
 date = str(datetime.now())
-log_filename = './logs/dqn_{}_{}_log.json'.format(ENV_NAME,date)
-#log_filename = './logs/dqn_{}_test_log.json'.format(ENV_NAME)
+log_filename = './logs/dqn_{}_{}_log.json'.format(ENV_NAME, date)
 callbacks = [FileLogger(log_filename, interval=25)]
 csv_logger = CSVLogger('test.log')
-#testCall = [TestLogger(FileLogger(log_filename, interval=25))]
-#dqn.load_weights("dqn_AutonomousRobot-v3_2017-08-17 18:43:23.361367_weights.h5f")  
-# Okay, now it's time to learn something! We visualize the training here for show, but this
-# slows down training quite a lot. You can always safely abort the training prematurely using
-# Ctrl + C.
-dqn.fit(env, nb_steps=2000000, visualize=False, verbose=2,callbacks=callbacks)
 
-# After training is done, we save the final weights.
-dqn.save_weights('dqn_{}_{}_weights.h5f'.format(ENV_NAME,date), overwrite=True)
+# load weights if needed
+#dqn.load_weights("dqn_AutonomousRobot-v3_2017-08-17 18:43:23.361367_weights.h5f")
 
-# Finally, evaluate our algorithm for 5 episodes.
-dqn.test(env, nb_episodes=5,verbose=2, visualize=True,callbacks=[csv_logger])
+# Training
+dqn.fit(env, nb_steps=2000000, visualize=False, verbose=2, callbacks=callbacks)
+
+# save weights.
+dqn.save_weights('dqn_{}_{}_weights.h5f'.format(
+    ENV_NAME, date), overwrite=True)
+
+# test
+dqn.test(env, nb_episodes=5, verbose=2, visualize=True, callbacks=[csv_logger])

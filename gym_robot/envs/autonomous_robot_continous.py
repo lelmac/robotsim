@@ -59,30 +59,27 @@ class AutonomousRobotC(gym.Env):
         self.display = display
 
     def _step(self, action):
-        #assert self.action_space.contains(
-        #    action), "%r (%s) invalid" % (action, type(action))
+
+        # multiply since output of neural net is [-1,1] and this would be too slow
         action = action * 3
+        # Exectue continous actions
         self.robot.move_forward_speed(action[0])
         self.robot.turn(action[1])
         reward, done = self.reward(action)
 
         min, p, p = self.robot.singleUsSensors(self.obstacles)
         infrared = self.robot.infraredSensor(self.obstacles)
-        
-        self.state = [min,infrared]
+
+        self.state = [min, infrared]
         #self.state = np.append(mins, pos)
         #self.state = np.append(self.state, delta)
         return np.copy(self.state), reward, done, {}
 
     def reward(self, action, delta=0):
-        #if(self.robot.pointInRobot(self.target_position)):
-        #    return 500, True
         for obs in self.obstacles:
             if self.robot.collision(obs):
                 return -500, True
-        #dis = np.linalg.norm(delta)
-        #reward = -1 * np.e**(dis / 2000)
-        reward = -2 + action[0] - np.abs(action[1]/2)
+        reward = -2 + action[0] - np.abs(action[1] / 2)
         return reward, False
 
     def _reset(self):

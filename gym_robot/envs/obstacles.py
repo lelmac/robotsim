@@ -7,6 +7,9 @@ if speedups.available:
     speedups.enable()
     print("Speedups enabled")
 
+# SimulatorObjects
+# Basic Class
+
 
 class Obstacle(object):
     def __init__(self, position, width, height):
@@ -76,6 +79,7 @@ class Obstacle(object):
         return [rotatedX + mid[0], rotatedY + mid[1]]
 
 
+# Robot Class
 class Robot(Obstacle):
     def __init__(self, position, width, height):
         Obstacle.__init__(self, position, width, height)
@@ -107,6 +111,7 @@ class Robot(Obstacle):
 
     def turn_right(self):
         self.angle -= self.turn_speed
+    # check for Collision
 
     def collision(self, obj):
         if type(obj) is Obstacle:
@@ -117,12 +122,13 @@ class Robot(Obstacle):
             ret = p1.intersects(p2)
 
             return ret
+    # gets Values for Infrared Sensor
 
     def infraredSensor(self, objectList):
-        mid = Polygon([[0,-5], [0,5], [60, 15], [60, -15]])
+        mid = Polygon([[0, -5], [0, 5], [60, 15], [60, -15]])
         left = Polygon([[0, -15], [0, -5], [60, -15], [50, -30]])
         right = Polygon([[0, 15], [0, 5], [60, 15], [50, 30]])
-
+        # Span trapezoids
         angleInRad = (self.angle) * np.pi / 180
         dirVec = np.array([np.cos(angleInRad), np.sin(angleInRad)])
         posRot = np.add(dirVec * self.width / 2, self.get_position())
@@ -132,25 +138,26 @@ class Robot(Obstacle):
 
         for z in zones:
             z = affinity.translate(z, posRot[0], posRot[1])
-            z = affinity.rotate(z, self.angle,posRot)
+            z = affinity.rotate(z, self.angle, posRot)
             translated_zones.append(z)
             c = self.get_rotated_corners()
             o = z.exterior.coords.xy
-            #plt.plot(*zip(*c))
-            #plt.scatter(o[0],o[1])
-            #plt.show()
+            # plt.plot(*zip(*c))
+            # plt.scatter(o[0],o[1])
+            # plt.show()
 
         for o in objectList:
             o = Polygon(o.get_rotated_corners())
-            
-            if translated_zones[0].intersects(o):
-                return 0#1695  # Center
-            if translated_zones[1].intersects(o):
-                return 2#3215  # Left
-            if translated_zones[2].intersects(o):
-                return 1#2086  # Right
-        return 3#4000  # Clear
 
+            if translated_zones[0].intersects(o):
+                return 0  # 1695  # Center
+            if translated_zones[1].intersects(o):
+                return 2  # 3215  # Left
+            if translated_zones[2].intersects(o):
+                return 1  # 2086  # Right
+        return 3  # 4000  # Clear
+
+    # single Ultrasonicsensor
     def singleUsSensors(self, objectList):
         us_angles = 0
         mins = 0
@@ -160,6 +167,7 @@ class Robot(Obstacle):
         mins, interections, start = self.rayCast(
             objectList, us_angles)
         return mins, interections, start
+    # three Ultrasonicsensors
 
     def usSensors(self, objectList):
         us_angles = [-20, 0, 20]

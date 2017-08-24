@@ -39,7 +39,7 @@ class AutonomousRobotTarget(gym.Env):
                            self.width, wall_size)
         botWall = Obstacle([self.width / 2, 0], self.width, wall_size)
         self.obstacles = [self.obstacle, self.obstacle2,
-            leftWall, rightWall, topWall, botWall]
+                          leftWall, rightWall, topWall, botWall]
         self.walls = [leftWall, rightWall, topWall, botWall]
 
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
@@ -74,9 +74,9 @@ class AutonomousRobotTarget(gym.Env):
         delta = np.subtract(self.target_position, pos)
         reward, done = self.reward(delta)
 
-        #Normierung
-        mins = mins/255
-        pos = pos /600
+        # Normierung
+        mins = mins / 255
+        pos = pos / 600
         delta = delta / 848
         #anlge = self.robot.angle / 180
         self.state = np.append(mins, pos)
