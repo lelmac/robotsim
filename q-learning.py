@@ -1,6 +1,6 @@
 import gym
 import numpy as np
-import gym_robot fr
+import gym_robot
 import signal
 import sys
 from matplotlib import pyplot as plt

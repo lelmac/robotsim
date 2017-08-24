@@ -43,8 +43,6 @@ class AutonomousRobot(gym.Env):
         self.walls = [leftWall, rightWall, topWall, botWall]
         self.speed = 0.5
         self.action_space = spaces.Discrete(3)  # Left, Right, Foward
-        # Sensors + Position + Delta to Target
-        # (s1,s2,s3,x,y,dx,dy)
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(2,))
 
